@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.catrobat.catroid.ui.adapter;
+package org.catrobat.catroid.ui.recyclerview.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -40,13 +40,17 @@ import com.squareup.picasso.Picasso;
 
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.ScratchProgramData;
+import org.catrobat.catroid.ui.recyclerview.adapter.ExtendedRVAdapter;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
+import org.catrobat.catroid.utils.UtilFile;
 import org.catrobat.catroid.utils.Utils;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class ScratchProgramAdapter extends ArrayAdapter<ScratchProgramData> {
+public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData> {
 
 	private boolean showDetails;
 	private int selectMode;
@@ -66,12 +70,37 @@ public class ScratchProgramAdapter extends ArrayAdapter<ScratchProgramData> {
 
 	public ScratchProgramAdapter(Context context, int resource, int textViewResourceId,
 			List<ScratchProgramData> objects) {
-		super(context, resource, textViewResourceId, objects);
+		super(objects);
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		showDetails = true;
 		selectMode = ListView.CHOICE_MODE_NONE;
 	}
 
+
+	@Override
+	public void onBindViewHolder(final ExtendedVH holder, int position) {
+		ScratchProgramData item = items.get(position);
+
+		holder.name.setText(item.getTitle());
+		holder.image.setImageBitmap(null); //TODO: set image
+
+		holder.details.setVisibility(View.GONE);
+
+		if (showDetails) {
+			holder.details.setVisibility(View.VISIBLE);
+
+			holder.leftBottomDetails.setText(R.string.look_measure);
+			//int[] measure = item.getMeasure();
+			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
+			String measureString = measure[0] + " x " + measure[1];
+			holder.rightBottomDetails.setText(measureString);
+
+			holder.leftTopDetails.setText(R.string.size);
+			//holder.rightTopDetails.setText(UtilFile.getSizeAsString(new File(item.getAbsolutePath()),
+			//		holder.itemView.getContext()));
+			holder.rightTopDetails.setText("Test");
+		}
+	}
 	public void setOnScratchProgramEditListener(OnScratchProgramEditListener listener) {
 		onScratchProgramEditListener = listener;
 	}
@@ -104,6 +133,7 @@ public class ScratchProgramAdapter extends ArrayAdapter<ScratchProgramData> {
 		checkedPrograms.clear();
 	}
 
+	/*
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View programView = convertView;
@@ -206,6 +236,7 @@ public class ScratchProgramAdapter extends ArrayAdapter<ScratchProgramData> {
 		}
 		return programView;
 	}
+	*/
 
 	public interface OnScratchProgramEditListener {
 		boolean onProgramChecked();

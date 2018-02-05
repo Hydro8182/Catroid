@@ -62,8 +62,9 @@
     android:background="@color/transparent"
     android:src="@android:drawable/ic_btn_speak_now" />
 
-<ListView
-    android:id="@+id/list_view_search_scratch"
+<android.support.v7.widget.RecyclerView
+
+    android:id="@+id/recycler_view_search_scratch"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerHorizontal="true"

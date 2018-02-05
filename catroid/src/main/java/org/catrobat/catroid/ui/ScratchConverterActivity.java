@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -89,12 +90,12 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		return searchProjectsListFragment;
 	}
 
+	//TODO: sachen auskommentiert
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scratch_converter);
-		setUpActionBar();
-
+//		setUpActionBar();
 		searchProjectsListFragment = (SearchScratchSearchProjectsListFragment) getFragmentManager().findFragmentById(
 				R.id.fragment_scratch_search_projects_list);
 		searchProjectsListFragment.setDataFetcher(dataFetcher);
@@ -145,12 +146,13 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		client = null;
 	}
 
+	/*
 	private void setUpActionBar() {
 		final ActionBar actionBar = getActionBar();
 		actionBar.setTitle(R.string.title_activity_scratch_converter);
 		actionBar.setHomeButtonEnabled(true);
 	}
-
+*/
 	private void appendColoredBetaLabelToTitle(final int color) {
 		final String title = getString(R.string.title_activity_scratch_converter);
 		final String beta = getString(R.string.beta).toUpperCase(Locale.getDefault());
@@ -158,7 +160,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		final int begin = title.length() + 1;
 		final int end = begin + beta.length();
 		spanTitle.setSpan(new ForegroundColorSpan(color), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		getActionBar().setTitle(spanTitle);
+//		getActionBar().setTitle(spanTitle);
 	}
 
 	public void convertProjects(List<ScratchProgramData> programList) {
