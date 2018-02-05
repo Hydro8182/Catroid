@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.catrobat.catroid.ui.adapter;
+package org.catrobat.catroid.ui.recyclerview.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -38,13 +38,45 @@ import com.squareup.picasso.Picasso;
 
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.ScratchProgramData;
+import org.catrobat.catroid.ui.recyclerview.adapter.ExtendedRVAdapter;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
 import org.catrobat.catroid.utils.Utils;
 
 import java.util.List;
 
-public class ScratchRemixedProgramAdapter extends ArrayAdapter<ScratchProgramData> {
+public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgramData> {
 	private static final String TAG = ScratchRemixedProgramAdapter.class.getSimpleName();
+	@Override
+	public void onBindViewHolder(final ExtendedVH holder, int position) {
+		ScratchProgramData item = items.get(position);
 
+		holder.name.setText(item.getTitle());
+		holder.image.setImageBitmap(null); //TODO: set image
+		if (item.getImage().getUrl() != null) {
+			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
+					.scratch_project_thumbnail_height);
+			final String originalImageURL = item.getImage().getUrl().toString();
+			// load image but only thumnail!
+			// in order to download only thumbnail version of the original image
+			// we have to reduce the image size in the URL
+			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
+			Picasso.with(holder.image.getContext()).load(thumbnailImageURL).into(holder.image);
+		} else {
+			// clear old image of other program if this is a reused view element
+			holder.image.setImageBitmap(null);
+		}
+		holder.details.setVisibility(View.GONE);
+
+		if (showDetails) {
+			holder.details.setVisibility(View.VISIBLE);
+			holder.leftBottomDetails.setText(R.string.look_measure);
+			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
+			String measureString = measure[0] + " x " + measure[1];
+			holder.rightBottomDetails.setText(measureString);
+			holder.leftTopDetails.setText(R.string.size);
+			holder.rightTopDetails.setText("Test");
+		}
+	}
 	private ScratchRemixedProgramEditListener scratchRemixedProgramEditListener;
 
 	private static class ViewHolder {
@@ -59,7 +91,7 @@ public class ScratchRemixedProgramAdapter extends ArrayAdapter<ScratchProgramDat
 
 	public ScratchRemixedProgramAdapter(Context context, int resource, int textViewResourceId,
 			List<ScratchProgramData> objects) {
-		super(context, resource, textViewResourceId, objects);
+		super(objects);
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Log.d(TAG, "Number of remixes: " + objects.size());
 	}
@@ -67,7 +99,7 @@ public class ScratchRemixedProgramAdapter extends ArrayAdapter<ScratchProgramDat
 	public void setScratchRemixedProgramEditListener(ScratchRemixedProgramEditListener listener) {
 		scratchRemixedProgramEditListener = listener;
 	}
-
+/*
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View projectView = convertView;
@@ -118,7 +150,7 @@ public class ScratchRemixedProgramAdapter extends ArrayAdapter<ScratchProgramDat
 
 		holder.background.setBackgroundResource(R.drawable.button_background_selector);
 		return projectView;
-	}
+	}*/
 
 	public interface ScratchRemixedProgramEditListener {
 		void onProjectEdit(int position);

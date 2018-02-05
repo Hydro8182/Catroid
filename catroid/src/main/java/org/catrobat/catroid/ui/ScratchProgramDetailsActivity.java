@@ -32,6 +32,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -54,8 +56,8 @@ import org.catrobat.catroid.scratchconverter.Client;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.transfers.FetchScratchProgramDetailsTask;
-import org.catrobat.catroid.ui.adapter.ScratchRemixedProgramAdapter;
-import org.catrobat.catroid.ui.adapter.ScratchRemixedProgramAdapter.ScratchRemixedProgramEditListener;
+import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter;
+import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter.ScratchRemixedProgramEditListener;
 import org.catrobat.catroid.ui.scratchconverter.JobViewListener;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
@@ -94,7 +96,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	private TextView sharedTextView;
 	private TextView modifiedTextView;
 	private Button convertButton;
-	private ListView remixedProjectsListView;
+	private RecyclerView remixedProjectsListView;
 	private ProgressDialog progressDialog;
 	private ScratchRemixedProgramAdapter scratchRemixedProgramAdapter;
 	private ScrollView mainScrollView;
@@ -134,7 +136,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		tagsTextView = (TextView) findViewById(R.id.scratch_project_tags_text);
 		sharedTextView = (TextView) findViewById(R.id.scratch_project_shared_text);
 		modifiedTextView = (TextView) findViewById(R.id.scratch_project_modified_text);
-		remixedProjectsListView = (ListView) findViewById(R.id.scratch_project_remixes_list_view);
+		remixedProjectsListView = (RecyclerView) findViewById(R.id.scratch_project_remixes_list_view);
 		convertButton = (Button) findViewById(R.id.scratch_project_convert_button);
 		detailsLayout = (RelativeLayout) findViewById(R.id.scratch_project_details_layout);
 		remixesLabelView = (TextView) findViewById(R.id.scratch_project_remixes_label);
@@ -193,9 +195,11 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	}
 
 	private void setUpActionBar() {
-		final ActionBar actionBar = getActionBar();
-		actionBar.setTitle(R.string.title_activity_scratch_converter);
-		actionBar.setHomeButtonEnabled(true);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		//previousActionBarTitle = ((AppCompatActivity) searchProjectsListFragment.getActivity()).getSupportActionBar
+		//().getTitle();
+		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
 	}
 
 	@Override
@@ -222,7 +226,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		separationLineBottom.setVisibility(GONE);
 
 		if (scratchRemixedProgramAdapter != null) {
-			scratchRemixedProgramAdapter.clear();
+			scratchRemixedProgramAdapter.getItems().clear();
 		}
 
 		titleTextView.setText(scratchProgramData.getTitle());
@@ -251,12 +255,12 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 				scratchRemixedProjectsData);
 		remixedProjectsListView.setAdapter(scratchRemixedProgramAdapter);
 		scratchRemixedProgramAdapter.setScratchRemixedProgramEditListener(this);
-		Utils.setListViewHeightBasedOnItems(remixedProjectsListView);
+		//Utils.setListViewHeightBasedOnItems(remixedProjectsListView);
 	}
 
 	public void onProjectEdit(int position) {
 		Log.i(TAG, "Clicked on remix at position: " + position);
-		ScratchProgramData remixData = scratchRemixedProgramAdapter.getItem(position);
+		ScratchProgramData remixData = scratchRemixedProgramAdapter.getItems().get(position);
 		Log.i(TAG, "Project ID of clicked item is: " + remixData.getId());
 
 		Intent intent = new Intent(this, ScratchProgramDetailsActivity.class);

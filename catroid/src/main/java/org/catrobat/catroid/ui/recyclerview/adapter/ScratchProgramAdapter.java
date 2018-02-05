@@ -87,7 +87,6 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 	public void onBindViewHolder(final ExtendedVH holder, int position) {
 		ScratchProgramData item = items.get(position);
 
-		Log.d("Lux","onBindViewHolder");
 		holder.name.setText(item.getTitle());
 		holder.image.setImageBitmap(null); //TODO: set image
 		if (item.getImage().getUrl() != null) {
@@ -109,7 +108,6 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 			holder.details.setVisibility(View.VISIBLE);
 
 			holder.leftBottomDetails.setText(R.string.look_measure);
-			//int[] measure = item.getMeasure();
 			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
 			String measureString = measure[0] + " x " + measure[1];
 			holder.rightBottomDetails.setText(measureString);
