@@ -24,6 +24,8 @@
 package org.catrobat.catroid.ui.recyclerview.adapter;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.ScrollView;
+
 import com.squareup.picasso.Picasso;
 
 import org.catrobat.catroid.R;

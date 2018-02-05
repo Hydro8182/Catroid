@@ -23,22 +23,11 @@
 
 package org.catrobat.catroid.ui.recyclerview.adapter;
 
-import android.content.Context;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.google.android.gms.common.images.WebImage;
 import com.squareup.picasso.Picasso;
-
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.ScratchProgramData;
-import org.catrobat.catroid.ui.recyclerview.adapter.ExtendedRVAdapter;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
 import org.catrobat.catroid.utils.Utils;
 
@@ -51,7 +40,6 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 		ScratchProgramData item = items.get(position);
 
 		holder.name.setText(item.getTitle());
-		holder.image.setImageBitmap(null); //TODO: set image
 		if (item.getImage().getUrl() != null) {
 			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
 					.scratch_project_thumbnail_height);
@@ -72,64 +60,8 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 
 
 
-	public ScratchRemixedProgramAdapter(Context context, List<ScratchProgramData> objects) {
+	public ScratchRemixedProgramAdapter(List<ScratchProgramData> objects) {
 		super(objects);
 		Log.d(TAG, "Number of remixes: " + objects.size());
 	}
-/*
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		View projectView = convertView;
-		final ViewHolder holder;
-		if (projectView == null) {
-			projectView = inflater.inflate(R.layout.fragment_scratch_project_list_item, parent, false);
-			holder = new ViewHolder();
-			holder.background = (RelativeLayout) projectView.findViewById(R.id.scratch_projects_list_item_background);
-			holder.projectName = (TextView) projectView.findViewById(R.id.scratch_projects_list_item_title);
-			holder.image = (ImageView) projectView.findViewById(R.id.scratch_projects_list_item_image);
-			holder.detailsText = (TextView) projectView.findViewById(R.id.scratch_projects_list_item_details_text);
-			holder.projectDetails = projectView.findViewById(R.id.scratch_projects_list_item_details);
-			projectView.setTag(holder);
-		} else {
-			holder = (ViewHolder) projectView.getTag();
-		}
-
-		final ScratchProgramData programData = getItem(position);
-		holder.projectName.setText(programData.getTitle());
-		holder.detailsText.setText(getContext().getString(R.string.by_x, programData.getOwner()));
-		holder.detailsText.setSingleLine(false);
-
-		WebImage httpImageMetadata = programData.getImage();
-		if (httpImageMetadata != null && httpImageMetadata.getUrl() != null) {
-			final int height = getContext().getResources().getDimensionPixelSize(R.dimen.scratch_project_thumbnail_height);
-			final String originalImageURL = httpImageMetadata.getUrl().toString();
-
-			// load image but only thumnail!
-			// in order to download only thumbnail version of the original image
-			// we have to reduce the image size in the URL
-			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
-			Picasso.with(getContext()).load(thumbnailImageURL).into(holder.image);
-		} else {
-			// clear old image of other program if this is a reused view element
-			holder.image.setImageBitmap(null);
-		}
-
-		holder.projectDetails.setVisibility(View.VISIBLE);
-		holder.projectName.setSingleLine(true);
-		holder.background.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (scratchRemixedProgramEditListener != null) {
-					scratchRemixedProgramEditListener.onProjectEdit(position);
-				}
-			}
-		});
-
-		holder.background.setBackgroundResource(R.drawable.button_background_selector);
-		return projectView;
-	}*/
-	/*
-	public interface ScratchRemixedProgramEditListener {
-		void onProjectEdit(int position);
-	}*/
 }

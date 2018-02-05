@@ -71,7 +71,6 @@
         android:src="@android:drawable/ic_btn_speak_now" />
 
     <android.support.v7.widget.RecyclerView
-
         android:id="@+id/recycler_view_search_scratch"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -81,7 +80,6 @@
         android:layout_marginBottom="@dimen/scratch_project_search_list_view_margin_bottom"
         android:dividerHeight="1dp"
         android:divider="@color/transparent"
-
         app:layoutManager="LinearLayoutManager"
         />
 

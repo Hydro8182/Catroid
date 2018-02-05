@@ -196,8 +196,6 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	private void setUpActionBar() {
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		//previousActionBarTitle = ((AppCompatActivity) searchProjectsListFragment.getActivity()).getSupportActionBar
-		//().getTitle();
 		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
 	}
 
@@ -248,20 +246,8 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		if (scratchRemixedProjectsData == null) {
 			scratchRemixedProjectsData = new ArrayList<>();
 		}
-		scratchRemixedProgramAdapter = new ScratchRemixedProgramAdapter(this,
-				scratchRemixedProjectsData);
+		scratchRemixedProgramAdapter = new ScratchRemixedProgramAdapter(scratchRemixedProjectsData);
 		remixedProjectsListView.setAdapter(scratchRemixedProgramAdapter);
-		//Utils.setListViewHeightBasedOnItems(remixedProjectsListView);
-	}
-
-	public void onProjectEdit(int position) {
-		Log.i(TAG, "Clicked on remix at position: " + position);
-		ScratchProgramData remixData = scratchRemixedProgramAdapter.getItems().get(position);
-		Log.i(TAG, "Project ID of clicked item is: " + remixData.getId());
-
-		Intent intent = new Intent(this, ScratchProgramDetailsActivity.class);
-		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable) remixData);
-		startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
 	}
 
 	private void onJobNotInProgress() {
