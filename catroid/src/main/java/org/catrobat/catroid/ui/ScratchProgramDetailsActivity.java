@@ -57,7 +57,6 @@ import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.transfers.FetchScratchProgramDetailsTask;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter;
-import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter.ScratchRemixedProgramEditListener;
 import org.catrobat.catroid.ui.scratchconverter.JobViewListener;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
@@ -73,7 +72,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class ScratchProgramDetailsActivity extends BaseActivity implements
-		FetchScratchProgramDetailsTask.ScratchProgramListTaskDelegate, ScratchRemixedProgramEditListener,
+		FetchScratchProgramDetailsTask.ScratchProgramListTaskDelegate,
 		JobViewListener, Client.DownloadCallback {
 
 	private static final String TAG = ScratchProgramDetailsActivity.class.getSimpleName();
@@ -250,11 +249,8 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 			scratchRemixedProjectsData = new ArrayList<>();
 		}
 		scratchRemixedProgramAdapter = new ScratchRemixedProgramAdapter(this,
-				R.layout.fragment_scratch_project_list_item,
-				R.id.scratch_projects_list_item_title,
 				scratchRemixedProjectsData);
 		remixedProjectsListView.setAdapter(scratchRemixedProgramAdapter);
-		scratchRemixedProgramAdapter.setScratchRemixedProgramEditListener(this);
 		//Utils.setListViewHeightBasedOnItems(remixedProjectsListView);
 	}
 

@@ -77,6 +77,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 	protected void showRenameDialog(List<ScratchProgramData> selectedItems) {
 	}
 	protected boolean isBackpackEmpty() {
+		//We have no backpack, guess that means always empty?
 		return true;
 	}
 	@Override
@@ -379,10 +380,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		scratchProgramAdapter.notifyDataSetChanged();
 	}
 
-	public int getSelectMode() {
-		return scratchProgramAdapter.getSelectMode();
-	}
-
 	public void setSelectMode(int selectMode) {
 		scratchProgramAdapter.setSelectMode(selectMode);
 		scratchProgramAdapter.notifyDataSetChanged();
@@ -392,58 +389,13 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		if (scratchProgramDataList == null) {
 			scratchProgramDataList = new ArrayList<>();
 		}
-		scratchProgramAdapter = new ScratchProgramAdapter(activity,
-				R.layout.fragment_scratch_project_list_item,
-				R.id.scratch_projects_list_item_title,
+		scratchProgramAdapter = new ScratchProgramAdapter(
 				scratchProgramDataList);
 		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
 		adapter = scratchProgramAdapter;
 
 		//initClickListener();
 	}
-
-	/*private void initClickListener() {
-		scratchProgramAdapter.setOnScratchProgramEditListener(this);
-	}*/
-
-	/*@Override
-	public boolean onProgramChecked() {
-		if (scratchProgramAdapter.getSelectMode() == ListView.CHOICE_MODE_SINGLE || actionMode == null) {
-			return true;
-		}
-
-		int numberOfPrograms = scratchProgramAdapter.getAmountOfCheckedPrograms()
-				+ conversionManager.getNumberOfJobsInProgress();
-		if (numberOfPrograms > Constants.SCRATCH_CONVERTER_MAX_NUMBER_OF_JOBS_PER_CLIENT) {
-			ToastUtil.showError(activity, getResources().getQuantityString(
-					R.plurals.error_cannot_convert_more_than_x_programs,
-					Constants.SCRATCH_CONVERTER_MAX_NUMBER_OF_JOBS_PER_CLIENT,
-					Constants.SCRATCH_CONVERTER_MAX_NUMBER_OF_JOBS_PER_CLIENT));
-			return false;
-		}
-		updateActionModeTitle();
-		return true;
-	}
-
-	private void updateActionModeTitle() {
-		int numberOfSelectedItems = scratchProgramAdapter.getAmountOfCheckedPrograms();
-		actionMode.setTitle(actionModeTitle + " " + getResources().getQuantityString(R.plurals.am_looks_title,
-				numberOfSelectedItems,
-				numberOfSelectedItems));
-	}*/
-
-	//TODO: Remove?
-	/*@Override
-	public void onProgramEdit(int position) {
-		Preconditions.checkState(conversionManager != null);
-
-		ScratchProgramDetailsActivity.setDataFetcher(dataFetcher);
-		ScratchProgramDetailsActivity.setConversionManager(conversionManager);
-		Intent intent = new Intent(activity, ScratchProgramDetailsActivity.class);
-		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable) scratchProgramAdapter.getItem(position));
-		activity.startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
-		Log.e("Lux","Function shouldn't be called anymore.");
-	}*/
 
 	public void startConvertActionMode() {
 		if (actionMode == null) {

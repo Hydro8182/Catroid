@@ -65,39 +65,16 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 			// clear old image of other program if this is a reused view element
 			holder.image.setImageBitmap(null);
 		}
-		holder.details.setVisibility(View.GONE);
-
-		if (showDetails) {
-			holder.details.setVisibility(View.VISIBLE);
-			holder.leftBottomDetails.setText(R.string.look_measure);
-			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
-			String measureString = measure[0] + " x " + measure[1];
-			holder.rightBottomDetails.setText(measureString);
-			holder.leftTopDetails.setText(R.string.size);
-			holder.rightTopDetails.setText("Test");
-		}
-	}
-	private ScratchRemixedProgramEditListener scratchRemixedProgramEditListener;
-
-	private static class ViewHolder {
-		private RelativeLayout background;
-		private TextView projectName;
-		private ImageView image;
-		private TextView detailsText;
-		private View projectDetails;
+		holder.details.setVisibility(View.VISIBLE);
+		holder.name.setSingleLine(true);
+		holder.leftTopDetails.setText(item.getOwner());
 	}
 
-	private static LayoutInflater inflater;
 
-	public ScratchRemixedProgramAdapter(Context context, int resource, int textViewResourceId,
-			List<ScratchProgramData> objects) {
+
+	public ScratchRemixedProgramAdapter(Context context, List<ScratchProgramData> objects) {
 		super(objects);
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Log.d(TAG, "Number of remixes: " + objects.size());
-	}
-
-	public void setScratchRemixedProgramEditListener(ScratchRemixedProgramEditListener listener) {
-		scratchRemixedProgramEditListener = listener;
 	}
 /*
 	@Override
@@ -151,8 +128,8 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 		holder.background.setBackgroundResource(R.drawable.button_background_selector);
 		return projectView;
 	}*/
-
+	/*
 	public interface ScratchRemixedProgramEditListener {
 		void onProjectEdit(int position);
-	}
+	}*/
 }
