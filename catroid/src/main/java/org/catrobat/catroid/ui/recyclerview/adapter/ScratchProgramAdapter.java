@@ -24,6 +24,9 @@
 package org.catrobat.catroid.ui.recyclerview.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +49,8 @@ import org.catrobat.catroid.utils.UtilFile;
 import org.catrobat.catroid.utils.Utils;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -55,8 +60,8 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 	private boolean showDetails;
 	private int selectMode;
 	private Set<Integer> checkedPrograms = new TreeSet<>();
-	private OnScratchProgramEditListener onScratchProgramEditListener;
-
+	//private OnScratchProgramEditListener onScratchProgramEditListener;
+	/*
 	private static class ViewHolder {
 		private RelativeLayout background;
 		private CheckBox checkbox;
@@ -65,13 +70,13 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 		private TextView detailsText;
 		private View programDetails;
 	}
-
-	private static LayoutInflater inflater;
+*/
+	//private static LayoutInflater inflater;
 
 	public ScratchProgramAdapter(Context context, int resource, int textViewResourceId,
 			List<ScratchProgramData> objects) {
 		super(objects);
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		//inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		showDetails = true;
 		selectMode = ListView.CHOICE_MODE_NONE;
 	}
@@ -81,9 +86,17 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 	public void onBindViewHolder(final ExtendedVH holder, int position) {
 		ScratchProgramData item = items.get(position);
 
+		Log.d("Lux","onBindViewHolder");
 		holder.name.setText(item.getTitle());
 		holder.image.setImageBitmap(null); //TODO: set image
+		try {
+			URL url = new URL(item.getImage().getUrl().toString());
 
+			Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+			holder.image.setImageBitmap(image);
+		} catch(Exception e) {
+			Log.d("Lux","error: "+e.toString());
+		}
 		holder.details.setVisibility(View.GONE);
 
 		if (showDetails) {
@@ -91,7 +104,8 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 
 			holder.leftBottomDetails.setText(R.string.look_measure);
 			//int[] measure = item.getMeasure();
-			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
+			//int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
+			int[] measure = {20, 20};
 			String measureString = measure[0] + " x " + measure[1];
 			holder.rightBottomDetails.setText(measureString);
 
@@ -101,9 +115,10 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 			holder.rightTopDetails.setText("Test");
 		}
 	}
+	/*
 	public void setOnScratchProgramEditListener(OnScratchProgramEditListener listener) {
 		onScratchProgramEditListener = listener;
-	}
+	}*/
 
 	public void setShowDetails(boolean showDetails) {
 		this.showDetails = showDetails;
@@ -236,11 +251,12 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 		}
 		return programView;
 	}
-	*/
 
 	public interface OnScratchProgramEditListener {
 		boolean onProgramChecked();
 
 		void onProgramEdit(int position);
 	}
+	*/
+
 }

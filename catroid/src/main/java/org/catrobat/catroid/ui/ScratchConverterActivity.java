@@ -101,6 +101,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		setContentView(R.layout.activity_recycler);
 		setContentView(R.layout.activity_scratch_converter);
 		setUpActionBar();
 		searchProjectsListFragment = (SearchScratchSearchProjectsListFragment) getFragmentManager().findFragmentById(

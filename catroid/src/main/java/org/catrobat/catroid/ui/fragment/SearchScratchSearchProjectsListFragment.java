@@ -66,8 +66,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragment<ScratchProgramData>
-		implements SearchScratchProgramsTask.SearchScratchProgramsTaskDelegate,
-		ScratchProgramAdapter.OnScratchProgramEditListener {
+		implements SearchScratchProgramsTask.SearchScratchProgramsTaskDelegate
+		{
 
 	@Override
 	public void renameItem(String name) {
@@ -128,14 +128,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 
 	@Override
 	protected void initializeAdapter() {
-		Log.d("LUX", "initializeAdapter()");
-		/*
-		activity = (ScratchConverterActivity) getActivity();
-		searchView = (SearchView) parent.getRootView().findViewById(R.id.search_view_scratch);
-		searchResultsRecyclerView = (RecyclerView)  parent.getRootView().findViewById(R.id.recycler_view_search_scratch);
-		searchResultsRecyclerView.setVisibility(View.INVISIBLE);
-		audioButton = (ImageButton) parent.getRootView().findViewById(R.id.mic_button_image_scratch);
-		*/
 		initAdapter();
 		onAdapterReady();
 	}
@@ -407,14 +399,14 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
 		adapter = scratchProgramAdapter;
 
-		initClickListener();
+		//initClickListener();
 	}
 
-	private void initClickListener() {
+	/*private void initClickListener() {
 		scratchProgramAdapter.setOnScratchProgramEditListener(this);
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public boolean onProgramChecked() {
 		if (scratchProgramAdapter.getSelectMode() == ListView.CHOICE_MODE_SINGLE || actionMode == null) {
 			return true;
@@ -438,20 +430,20 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		actionMode.setTitle(actionModeTitle + " " + getResources().getQuantityString(R.plurals.am_looks_title,
 				numberOfSelectedItems,
 				numberOfSelectedItems));
-	}
+	}*/
 
 	//TODO: Remove?
-	@Override
+	/*@Override
 	public void onProgramEdit(int position) {
-		/*Preconditions.checkState(conversionManager != null);
+		Preconditions.checkState(conversionManager != null);
 
 		ScratchProgramDetailsActivity.setDataFetcher(dataFetcher);
 		ScratchProgramDetailsActivity.setConversionManager(conversionManager);
 		Intent intent = new Intent(activity, ScratchProgramDetailsActivity.class);
 		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable) scratchProgramAdapter.getItem(position));
-		activity.startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);*/
+		activity.startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
 		Log.e("Lux","Function shouldn't be called anymore.");
-	}
+	}*/
 
 	public void startConvertActionMode() {
 		if (actionMode == null) {
