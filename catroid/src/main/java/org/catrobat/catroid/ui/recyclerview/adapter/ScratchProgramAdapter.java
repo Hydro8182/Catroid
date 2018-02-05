@@ -45,6 +45,7 @@ import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.ScratchProgramData;
 import org.catrobat.catroid.ui.recyclerview.adapter.ExtendedRVAdapter;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
+import org.catrobat.catroid.utils.DownloadUtil;
 import org.catrobat.catroid.utils.UtilFile;
 import org.catrobat.catroid.utils.Utils;
 
@@ -89,13 +90,18 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 		Log.d("Lux","onBindViewHolder");
 		holder.name.setText(item.getTitle());
 		holder.image.setImageBitmap(null); //TODO: set image
-		try {
-			URL url = new URL(item.getImage().getUrl().toString());
-
-			Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-			holder.image.setImageBitmap(image);
-		} catch(Exception e) {
-			Log.d("Lux","error: "+e.toString());
+		if (item.getImage().getUrl() != null) {
+			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
+					.scratch_project_thumbnail_height);
+			final String originalImageURL = item.getImage().getUrl().toString();
+			// load image but only thumnail!
+			// in order to download only thumbnail version of the original image
+			// we have to reduce the image size in the URL
+			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
+			Picasso.with(holder.image.getContext()).load(thumbnailImageURL).into(holder.image);
+		} else {
+			// clear old image of other program if this is a reused view element
+			holder.image.setImageBitmap(null);
 		}
 		holder.details.setVisibility(View.GONE);
 
@@ -104,8 +110,7 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 
 			holder.leftBottomDetails.setText(R.string.look_measure);
 			//int[] measure = item.getMeasure();
-			//int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
-			int[] measure = {20, 20};
+			int[] measure = {item.getImage().getWidth(), item.getImage().getHeight()};
 			String measureString = measure[0] + " x " + measure[1];
 			holder.rightBottomDetails.setText(measureString);
 
