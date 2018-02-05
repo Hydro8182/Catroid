@@ -30,6 +30,7 @@ import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -89,13 +90,19 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	public SearchScratchSearchProjectsListFragment getSearchProjectsListFragment() {
 		return searchProjectsListFragment;
 	}
-
+	private void setUpActionBar() {
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		//previousActionBarTitle = ((AppCompatActivity) searchProjectsListFragment.getActivity()).getSupportActionBar
+		//().getTitle();
+		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
+	}
 	//TODO: sachen auskommentiert
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scratch_converter);
-//		setUpActionBar();
+		setUpActionBar();
 		searchProjectsListFragment = (SearchScratchSearchProjectsListFragment) getFragmentManager().findFragmentById(
 				R.id.fragment_scratch_search_projects_list);
 		searchProjectsListFragment.setDataFetcher(dataFetcher);

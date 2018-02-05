@@ -125,12 +125,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		return R.plurals.delete_looks;
 	}
 
-	private void setUpActionBar() {
-		((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-		//previousActionBarTitle = ((AppCompatActivity) searchProjectsListFragment.getActivity()).getSupportActionBar
-		//().getTitle();
-		((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.categories);
-	}
+
 	@Override
 	protected void initializeAdapter() {
 		Log.d("LUX", "initializeAdapter()");
