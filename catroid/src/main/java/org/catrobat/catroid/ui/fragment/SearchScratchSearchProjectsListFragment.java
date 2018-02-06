@@ -149,7 +149,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		ScratchProgramDetailsActivity.setDataFetcher(dataFetcher);
 		ScratchProgramDetailsActivity.setConversionManager(conversionManager);
 		Intent intent = new Intent(activity, ScratchProgramDetailsActivity.class);
-		//TODO: Is item parcelable?
 		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable)item);
 		activity.startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
 	}

@@ -23,11 +23,16 @@
 
 package org.catrobat.catroid.ui.recyclerview.adapter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import com.squareup.picasso.Picasso;
 import org.catrobat.catroid.R;
+import org.catrobat.catroid.common.Constants;
 import org.catrobat.catroid.common.ScratchProgramData;
+import org.catrobat.catroid.ui.ScratchProgramDetailsActivity;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
 import org.catrobat.catroid.utils.Utils;
 
@@ -35,10 +40,12 @@ import java.util.List;
 
 public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgramData> {
 	private static final String TAG = ScratchRemixedProgramAdapter.class.getSimpleName();
+
+	private ScratchRemixedProgramEditListener onClickListener;
 	@Override
 	public void onBindViewHolder(final ExtendedVH holder, int position) {
-		ScratchProgramData item = items.get(position);
 
+		final ScratchProgramData item = items.get(position);
 		holder.name.setText(item.getTitle());
 		if (item.getImage().getUrl() != null) {
 			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
@@ -56,12 +63,25 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 		holder.details.setVisibility(View.VISIBLE);
 		holder.name.setSingleLine(true);
 		holder.leftTopDetails.setText(item.getOwner());
+		holder.background.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onClickListener.onProjectEdit(item);
+			}
+		});
 	}
-
 
 
 	public ScratchRemixedProgramAdapter(List<ScratchProgramData> objects) {
 		super(objects);
 		Log.d(TAG, "Number of remixes: " + objects.size());
+	}
+
+	public interface ScratchRemixedProgramEditListener {
+		void onProjectEdit(ScratchProgramData item);
+	}
+
+	public void setOnClickListener(ScratchRemixedProgramEditListener listener){
+		this.onClickListener = listener;
 	}
 }
