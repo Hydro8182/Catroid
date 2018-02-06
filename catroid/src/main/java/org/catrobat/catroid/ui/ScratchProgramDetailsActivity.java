@@ -32,6 +32,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -248,6 +249,8 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		}
 		scratchRemixedProgramAdapter = new ScratchRemixedProgramAdapter(scratchRemixedProjectsData);
 		remixedProjectsListView.setAdapter(scratchRemixedProgramAdapter);
+		remixedProjectsListView.addItemDecoration(new DividerItemDecoration(remixedProjectsListView.getContext(),
+				DividerItemDecoration.VERTICAL));
 	}
 
 	private void onJobNotInProgress() {

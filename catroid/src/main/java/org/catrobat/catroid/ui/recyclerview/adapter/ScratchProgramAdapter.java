@@ -22,7 +22,9 @@
  */
 
 package org.catrobat.catroid.ui.recyclerview.adapter;
+import android.support.v7.widget.DividerItemDecoration;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
@@ -67,9 +69,7 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 			// clear old image of other program if this is a reused view element
 			holder.image.setImageBitmap(null);
 		}
-
 		holder.name.setSingleLine(true);
-
 		if (showDetails) {
 			holder.details.setVisibility(View.VISIBLE);
 			holder.leftTopDetails.setText(item.getOwner());

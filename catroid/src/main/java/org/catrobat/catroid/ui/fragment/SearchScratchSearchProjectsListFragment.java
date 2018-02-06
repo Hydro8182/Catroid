@@ -25,12 +25,14 @@ package org.catrobat.catroid.ui.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
@@ -312,7 +314,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 				return false;
 			}
 		});
-		//initAdapter();
 		return rootView;
 	}
 
@@ -393,8 +394,8 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 				scratchProgramDataList);
 		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
 		adapter = scratchProgramAdapter;
-
-		//initClickListener();
+		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
+				DividerItemDecoration.VERTICAL));
 	}
 
 	public void startConvertActionMode() {
