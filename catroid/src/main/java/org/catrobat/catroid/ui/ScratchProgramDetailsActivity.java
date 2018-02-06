@@ -23,7 +23,6 @@
 
 package org.catrobat.catroid.ui;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -31,19 +30,20 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -59,10 +59,7 @@ import org.catrobat.catroid.scratchconverter.Client;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.transfers.FetchScratchProgramDetailsTask;
-import org.catrobat.catroid.ui.fragment.SearchScratchSearchProjectsListFragment;
-import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter;
-import org.catrobat.catroid.ui.recyclerview.adapter.draganddrop.TouchHelperCallback;
 import org.catrobat.catroid.ui.scratchconverter.JobViewListener;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
@@ -184,7 +181,15 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 
 
 	}
-
+	private void appendColoredBetaLabelToTitle(final int color) {
+		final String title = getString(R.string.title_activity_scratch_converter);
+		final String beta = getString(R.string.beta).toUpperCase(Locale.getDefault());
+		final SpannableString spanTitle = new SpannableString(title + " " + beta);
+		final int begin = title.length() + 1;
+		final int end = begin + beta.length();
+		spanTitle.setSpan(new ForegroundColorSpan(color), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		getSupportActionBar().setTitle(spanTitle);
+	}
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -205,6 +210,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
+		appendColoredBetaLabelToTitle(ContextCompat.getColor(this, R.color.beta_label_color));
 	}
 
 	@Override
@@ -281,7 +287,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	}
 
 	@Override
-	public void onProjectEdit(ScratchProgramData item) {
+	public void onRemixClick(ScratchProgramData item) {
 		Log.i(TAG, "Project ID of clicked item is: " + item.getId());
 
 		Intent intent = new Intent(this, ScratchProgramDetailsActivity.class);

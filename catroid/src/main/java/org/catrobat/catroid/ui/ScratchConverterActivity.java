@@ -22,14 +22,13 @@
  */
 package org.catrobat.catroid.ui;
 
-import android.app.ActionBar;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -93,11 +92,11 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	private void setUpActionBar() {
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		//previousActionBarTitle = ((AppCompatActivity) searchProjectsListFragment.getActivity()).getSupportActionBar
-		//().getTitle();
 		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
+		final int betaLabelColor = ContextCompat.getColor(this, R.color.beta_label_color);
+		appendColoredBetaLabelToTitle(betaLabelColor);
 	}
-	//TODO: sachen auskommentiert
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -127,8 +126,6 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 		slidingLayout.addPanelSlideListener(this);
 
-		final int betaLabelColor = ContextCompat.getColor(this, R.color.beta_label_color);
-		appendColoredBetaLabelToTitle(betaLabelColor);
 		hideSlideUpPanelBar();
 		Log.i(TAG, "Scratch Converter Activity created");
 	}
@@ -153,13 +150,6 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		client = null;
 	}
 
-	/*
-	private void setUpActionBar() {
-		final ActionBar actionBar = getActionBar();
-		actionBar.setTitle(R.string.title_activity_scratch_converter);
-		actionBar.setHomeButtonEnabled(true);
-	}
-*/
 	private void appendColoredBetaLabelToTitle(final int color) {
 		final String title = getString(R.string.title_activity_scratch_converter);
 		final String beta = getString(R.string.beta).toUpperCase(Locale.getDefault());
@@ -167,7 +157,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		final int begin = title.length() + 1;
 		final int end = begin + beta.length();
 		spanTitle.setSpan(new ForegroundColorSpan(color), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//		getActionBar().setTitle(spanTitle);
+		getSupportActionBar().setTitle(spanTitle);
 	}
 
 	public void convertProjects(List<ScratchProgramData> programList) {
