@@ -196,15 +196,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 
 
 	}
-	private void appendColoredBetaLabelToTitle(final int color) {
-		final String title = getString(R.string.title_activity_scratch_converter);
-		final String beta = getString(R.string.beta).toUpperCase(Locale.getDefault());
-		final SpannableString spanTitle = new SpannableString(title + " " + beta);
-		final int begin = title.length() + 1;
-		final int end = begin + beta.length();
-		spanTitle.setSpan(new ForegroundColorSpan(color), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		getSupportActionBar().setTitle(spanTitle);
-	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -224,9 +216,9 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	private void setUpActionBar() {
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
-		appendColoredBetaLabelToTitle(ContextCompat.getColor(this, R.color.beta_label_color));
-	}
+		String title = getResources().getString(R.string.title_activity_scratch_converter) + " " +  getResources()
+				.getString(R.string.beta).toUpperCase();
+		getSupportActionBar().setTitle(title);	}
 
 	@Override
 	public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {

@@ -197,8 +197,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 
 		@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-			setSelectMode(ListView.CHOICE_MODE_MULTIPLE);
-
 			actionModeTitle = getString(R.string.convert);
 
 			mode.setTitle(actionModeTitle);
@@ -215,7 +213,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
-			if (scratchProgramAdapter.getAmountOfCheckedPrograms() == 0) {
+			if (scratchProgramAdapter.getSelectedItems().size() == 0) {
 				clearCheckedProjectsAndEnableButtons();
 			} else {
 				convertCheckedProjects();
@@ -372,18 +370,14 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 	}
 
 	public boolean getShowDetails() {
-		return scratchProgramAdapter.getShowDetails();
+		return scratchProgramAdapter.showDetails;
 	}
 
 	public void setShowDetails(boolean showDetails) {
-		scratchProgramAdapter.setShowDetails(showDetails);
+		scratchProgramAdapter.showDetails = showDetails;
 		scratchProgramAdapter.notifyDataSetChanged();
 	}
 
-	public void setSelectMode(int selectMode) {
-		scratchProgramAdapter.setSelectMode(selectMode);
-		scratchProgramAdapter.notifyDataSetChanged();
-	}
 
 	private void initAdapter() {
 		if (scratchProgramDataList == null) {
@@ -405,8 +399,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 
 	private void convertCheckedProjects() {
 		ArrayList<ScratchProgramData> projectsToConvert = new ArrayList<>();
-		for (int position : scratchProgramAdapter.getCheckedPrograms()) {
-			scratchProgramToEdit = scratchProgramAdapter.getItems().get(position);
+		for (ScratchProgramData scratchProgramToEdit : scratchProgramAdapter.getSelectedItems()) {
 			projectsToConvert.add(scratchProgramToEdit);
 			Log.d(TAG, "Converting project '" + scratchProgramToEdit.getTitle() + "'");
 		}
@@ -415,8 +408,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 	}
 
 	private void clearCheckedProjectsAndEnableButtons() {
-		setSelectMode(ListView.CHOICE_MODE_NONE);
-		scratchProgramAdapter.clearCheckedPrograms();
+		scratchProgramAdapter.clearSelection();
 		actionMode = null;
 		searchView.setVisibility(View.VISIBLE);
 		audioButton.setVisibility(View.VISIBLE);

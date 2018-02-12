@@ -22,11 +22,7 @@
  */
 
 package org.catrobat.catroid.ui.recyclerview.adapter;
-import android.support.v7.widget.DividerItemDecoration;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ScrollView;
 
 import com.squareup.picasso.Picasso;
 
@@ -35,18 +31,12 @@ import org.catrobat.catroid.common.ScratchProgramData;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ExtendedVH;
 import org.catrobat.catroid.utils.Utils;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData> {
 
-	private boolean showDetails;
-	private int selectMode;
-	private Set<Integer> checkedPrograms = new TreeSet<>();
 	public ScratchProgramAdapter(List<ScratchProgramData> objects) {
 		super(objects);
 		showDetails = true;
-		selectMode = ListView.CHOICE_MODE_NONE;
 	}
 
 
@@ -55,7 +45,6 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 		ScratchProgramData item = items.get(position);
 
 		holder.name.setText(item.getTitle());
-		holder.image.setImageBitmap(null); //TODO: set image
 		if (item.getImage().getUrl() != null) {
 			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
 					.scratch_project_thumbnail_height);
@@ -73,36 +62,6 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 		if (showDetails) {
 			holder.details.setVisibility(View.VISIBLE);
 			holder.leftTopDetails.setText(item.getOwner());
-
 		}
 	}
-
-	public void setShowDetails(boolean showDetails) {
-		this.showDetails = showDetails;
-	}
-
-	public boolean getShowDetails() {
-		return showDetails;
-	}
-
-	public void setSelectMode(int selectMode) {
-		this.selectMode = selectMode;
-	}
-
-	public int getSelectMode() {
-		return selectMode;
-	}
-
-	public Set<Integer> getCheckedPrograms() {
-		return checkedPrograms;
-	}
-
-	public int getAmountOfCheckedPrograms() {
-		return checkedPrograms.size();
-	}
-
-	public void clearCheckedPrograms() {
-		checkedPrograms.clear();
-	}
-
 }

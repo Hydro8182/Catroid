@@ -92,9 +92,9 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	private void setUpActionBar() {
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(R.string.title_activity_scratch_converter);
-		final int betaLabelColor = ContextCompat.getColor(this, R.color.beta_label_color);
-		appendColoredBetaLabelToTitle(betaLabelColor);
+		String title = getResources().getString(R.string.title_activity_scratch_converter) + " " +  getResources()
+				.getString(R.string.beta).toUpperCase();
+		getSupportActionBar().setTitle(title);
 	}
 
 	@Override
@@ -150,15 +150,6 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		client = null;
 	}
 
-	private void appendColoredBetaLabelToTitle(final int color) {
-		final String title = getString(R.string.title_activity_scratch_converter);
-		final String beta = getString(R.string.beta).toUpperCase(Locale.getDefault());
-		final SpannableString spanTitle = new SpannableString(title + " " + beta);
-		final int begin = title.length() + 1;
-		final int end = begin + beta.length();
-		spanTitle.setSpan(new ForegroundColorSpan(color), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		getSupportActionBar().setTitle(spanTitle);
-	}
 
 	public void convertProjects(List<ScratchProgramData> programList) {
 		final int numberOfJobsInProgress = conversionManager.getNumberOfJobsInProgress();
