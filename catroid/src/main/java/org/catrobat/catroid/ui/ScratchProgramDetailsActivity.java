@@ -59,7 +59,9 @@ import org.catrobat.catroid.scratchconverter.Client;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.transfers.FetchScratchProgramDetailsTask;
+import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ViewHolder;
 import org.catrobat.catroid.ui.scratchconverter.JobViewListener;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
@@ -76,7 +78,20 @@ import static android.view.View.VISIBLE;
 
 public class ScratchProgramDetailsActivity extends BaseActivity implements
 		FetchScratchProgramDetailsTask.ScratchProgramListTaskDelegate,
-		JobViewListener, Client.DownloadCallback, ScratchRemixedProgramAdapter.ScratchRemixedProgramEditListener {
+		JobViewListener, Client.DownloadCallback,
+		RVAdapter.OnItemClickListener<ScratchProgramData>{
+
+	public void onItemClick(ScratchProgramData item) {
+		Log.i(TAG, "Project ID of clicked item is: " + item.getId());
+
+		Intent intent = new Intent(this, ScratchProgramDetailsActivity.class);
+		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable) item);
+		startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
+	}
+
+	public void onItemLongClick(ScratchProgramData item, ViewHolder h) {
+
+	}
 
 	private static final String TAG = ScratchProgramDetailsActivity.class.getSimpleName();
 
@@ -265,7 +280,8 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		remixedProjectsListView.addItemDecoration(new DividerItemDecoration(remixedProjectsListView.getContext(),
 				DividerItemDecoration.VERTICAL));
 
-		scratchRemixedProgramAdapter.setOnClickListener(this);
+		scratchRemixedProgramAdapter.setOnItemClickListener(this);
+
 
 
 	}
@@ -286,14 +302,9 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		convertButton.setText(R.string.status_downloading);
 	}
 
-	@Override
-	public void onRemixClick(ScratchProgramData item) {
-		Log.i(TAG, "Project ID of clicked item is: " + item.getId());
 
-		Intent intent = new Intent(this, ScratchProgramDetailsActivity.class);
-		intent.putExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA, (Parcelable) item);
-		startActivityForResult(intent, Constants.INTENT_REQUEST_CODE_CONVERT);
-	}
+
+
 
 	//----------------------------------------------------------------------------------------------
 	// Scratch Project Details Task Delegate Methods
