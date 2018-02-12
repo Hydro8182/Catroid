@@ -23,9 +23,12 @@
 package org.catrobat.catroid.ui;
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v7.widget.Toolbar;
@@ -39,13 +42,19 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.Constants;
 import org.catrobat.catroid.common.ScratchProgramData;
+import org.catrobat.catroid.io.LoadProjectTask;
+import org.catrobat.catroid.io.StorageHandler;
 import org.catrobat.catroid.scratchconverter.Client;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.scratchconverter.ScratchConversionManager;
 import org.catrobat.catroid.scratchconverter.WebSocketClient;
+import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.scratchconverter.protocol.WebSocketMessageListener;
+import org.catrobat.catroid.ui.dialogs.CustomAlertDialogBuilder;
 import org.catrobat.catroid.ui.fragment.ScratchConverterSlidingUpPanelFragment;
 import org.catrobat.catroid.ui.fragment.SearchScratchSearchProjectsListFragment;
+import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ViewHolder;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
 import org.catrobat.catroid.web.ScratchDataFetcher;
@@ -55,7 +64,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ScratchConverterActivity extends BaseActivity implements SlidingUpPanelLayout.PanelSlideListener {
+public class ScratchConverterActivity extends BaseActivity implements SlidingUpPanelLayout.PanelSlideListener,
+		RVAdapter.OnItemClickListener<Job> {
 
 	private static final String TAG = ScratchConverterActivity.class.getSimpleName();
 
@@ -64,7 +74,13 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	private static ScratchDataFetcher dataFetcher = ServerCalls.getInstance();
 
 	private SearchScratchSearchProjectsListFragment searchProjectsListFragment;
+
 	private ScratchConverterSlidingUpPanelFragment converterSlidingUpPanelFragment;
+
+	public ScratchConverterSlidingUpPanelFragment getConverterSlidingUpPanelFragment()
+	{
+		return	converterSlidingUpPanelFragment;
+	}
 	private SlidingUpPanelLayout slidingLayout;
 	private ConversionManager conversionManager;
 
@@ -116,9 +132,15 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		slidingLayout.addPanelSlideListener(this);
 
 		hideSlideUpPanelBar();
+
 		Log.i(TAG, "Scratch Converter Activity created");
 	}
+	@Override protected void onPostCreate(Bundle savedBundle)
+	{
+		super.onPostCreate(savedBundle);
+		converterSlidingUpPanelFragment.getFinishedFailedJobsAdapter().setScratchJobEditListener(this);
 
+	}
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -268,4 +290,66 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 				break;
 		}
 	}
+
+	public void onItemClick(Job item)
+	{
+		if (!Looper.getMainLooper().equals(Looper.myLooper())) {
+			throw new AssertionError("You should not change the UI from any thread except UI thread!");
+		}
+
+		//Log.i(TAG, "User clicked on position: " + position);
+
+		final Job job = item;
+		if (job == null) {
+			Log.e(TAG, "Job not found in runningJobsAdapter!");
+			return;
+		}
+
+		if (job.getState() == Job.State.FAILED) {
+			ToastUtil.showError(this, R.string.error_cannot_open_failed_scratch_program);
+			return;
+		}
+
+		String catrobatProgramName = converterSlidingUpPanelFragment.getDownloadedProgramsMap().get(job.getJobID());
+		catrobatProgramName = catrobatProgramName == null ? job.getTitle() : catrobatProgramName;
+
+		if (job.getDownloadState() == Job.DownloadState.DOWNLOADING) {
+			AlertDialog.Builder builder = new CustomAlertDialogBuilder(this);
+			builder.setTitle(R.string.warning);
+			builder.setMessage(R.string.error_cannot_open_currently_downloading_scratch_program);
+			builder.setNeutralButton(R.string.close, null);
+			Dialog errorDialog = builder.create();
+			errorDialog.show();
+			return;
+		}
+
+		if (job.getDownloadState() == Job.DownloadState.NOT_READY || job.getDownloadState() == Job.DownloadState.CANCELED) {
+			AlertDialog.Builder builder = new CustomAlertDialogBuilder(this);
+			builder.setTitle(R.string.warning);
+			builder.setMessage(R.string.error_cannot_open_not_yet_downloaded_scratch_program);
+			builder.setNeutralButton(R.string.close, null);
+			Dialog errorDialog = builder.create();
+			errorDialog.show();
+			return;
+		}
+
+		if (!StorageHandler.getInstance().projectExists(catrobatProgramName)) {
+			AlertDialog.Builder builder = new CustomAlertDialogBuilder(this);
+			builder.setTitle(R.string.warning);
+			builder.setMessage(R.string.error_cannot_open_not_existing_scratch_program);
+			builder.setNeutralButton(R.string.close, null);
+			Dialog errorDialog = builder.create();
+			errorDialog.show();
+			return;
+		}
+
+		LoadProjectTask loadProjectTask = new LoadProjectTask(this, catrobatProgramName, true, false);
+		loadProjectTask.setOnLoadProjectCompleteListener(converterSlidingUpPanelFragment);
+		loadProjectTask.execute();
+	}
+
+	public void onItemLongClick(Job item, ViewHolder h){}
+
+
+
 }

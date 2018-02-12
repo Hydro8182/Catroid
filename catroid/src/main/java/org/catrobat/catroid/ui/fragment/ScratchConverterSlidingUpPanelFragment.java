@@ -60,7 +60,6 @@ import org.catrobat.catroid.scratchconverter.protocol.Job;
 import org.catrobat.catroid.ui.ProjectActivity;
 import org.catrobat.catroid.ui.ScratchConverterActivity;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchJobAdapter;
-import org.catrobat.catroid.ui.recyclerview.adapter.ScratchJobAdapter.ScratchJobEditListener;
 import org.catrobat.catroid.ui.dialogs.CustomAlertDialogBuilder;
 import org.catrobat.catroid.ui.scratchconverter.BaseInfoViewListener;
 import org.catrobat.catroid.ui.scratchconverter.JobViewListener;
@@ -76,7 +75,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ScratchConverterSlidingUpPanelFragment extends Fragment
-		implements BaseInfoViewListener, JobViewListener, Client.DownloadCallback, ScratchJobEditListener,
+		implements BaseInfoViewListener, JobViewListener, Client.DownloadCallback,
 		LoadProjectTask.OnLoadProjectCompleteListener {
 
 	private static final String TAG = ScratchConverterSlidingUpPanelFragment.class.getSimpleName();
@@ -99,9 +98,13 @@ public class ScratchConverterSlidingUpPanelFragment extends Fragment
 	private RelativeLayout finishedFailedJobsList;
 	private RelativeLayout runningJobsList;
 	private ScratchJobAdapter runningJobsAdapter;
+	public ScratchJobAdapter getRunningJobsAdapter(){return  runningJobsAdapter;};
 	private ScratchJobAdapter finishedFailedJobsAdapter;
+	public ScratchJobAdapter getFinishedFailedJobsAdapter(){return  finishedFailedJobsAdapter;};
 	private List<Job> runningJobs;
 	private List<Job> finishedFailedJobs;
+
+	public Map<Long, String> getDownloadedProgramsMap() {return this.downloadedProgramsMap;}
 
 	@Nullable
 	@Override
@@ -476,15 +479,35 @@ public class ScratchConverterSlidingUpPanelFragment extends Fragment
 		updateConvertPanel(job, R.string.status_download_canceled, false, 0);
 	}
 
+
 	@Override
-	public void onProjectEdit(int position) {
+	public void onLoadProjectSuccess(boolean startProjectActivity) {
+		Intent intent = new Intent(getActivity(), ProjectActivity.class);
+		intent.putExtra(Constants.PROJECT_OPENED_FROM_PROJECTS_LIST, true);
+		getActivity().startActivity(intent);
+	}
+
+	@Override
+	public void onLoadProjectFailure() {
+		AlertDialog.Builder builder = new CustomAlertDialogBuilder(getActivity());
+		builder.setTitle(R.string.warning);
+		builder.setMessage(R.string.error_cannot_open_not_existing_scratch_program);
+		builder.setNeutralButton(R.string.close, null);
+		Dialog errorDialog = builder.create();
+		errorDialog.show();
+	}
+
+
+	public void onItemClick(Job item) {
+
 		if (!Looper.getMainLooper().equals(Looper.myLooper())) {
 			throw new AssertionError("You should not change the UI from any thread except UI thread!");
 		}
 
-		Log.i(TAG, "User clicked on position: " + position);
+		//Log.i(TAG, "User clicked on position: " + position);
 
-		final Job job = finishedFailedJobsAdapter.getItems().get(position);
+		//final Job job = finishedFailedJobsAdapter.getItems().get(position);
+		final Job job = item;
 		if (job == null) {
 			Log.e(TAG, "Job not found in runningJobsAdapter!");
 			return;
@@ -533,20 +556,4 @@ public class ScratchConverterSlidingUpPanelFragment extends Fragment
 		loadProjectTask.execute();
 	}
 
-	@Override
-	public void onLoadProjectSuccess(boolean startProjectActivity) {
-		Intent intent = new Intent(getActivity(), ProjectActivity.class);
-		intent.putExtra(Constants.PROJECT_OPENED_FROM_PROJECTS_LIST, true);
-		getActivity().startActivity(intent);
-	}
-
-	@Override
-	public void onLoadProjectFailure() {
-		AlertDialog.Builder builder = new CustomAlertDialogBuilder(getActivity());
-		builder.setTitle(R.string.warning);
-		builder.setMessage(R.string.error_cannot_open_not_existing_scratch_program);
-		builder.setNeutralButton(R.string.close, null);
-		Dialog errorDialog = builder.create();
-		errorDialog.show();
-	}
 }
