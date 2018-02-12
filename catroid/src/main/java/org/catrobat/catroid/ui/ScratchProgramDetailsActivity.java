@@ -129,7 +129,6 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	public static void setConversionManager(final ConversionManager manager) {
 		conversionManager = manager;
 	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

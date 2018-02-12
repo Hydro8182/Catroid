@@ -221,7 +221,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		getMenuInflater().inflate(R.menu.menu_scratch_projects, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-
+	/*
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		handleShowDetails(searchProjectsListFragment.getShowDetails(),
@@ -242,7 +242,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 				break;
 		}
 		return super.onOptionsItemSelected(item);
-	}
+	}*/
 
 	private void handleShowDetails(boolean showDetails, MenuItem item) {
 		searchProjectsListFragment.setShowDetails(showDetails);

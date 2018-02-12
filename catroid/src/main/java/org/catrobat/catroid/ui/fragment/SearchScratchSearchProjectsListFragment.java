@@ -42,6 +42,7 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ import org.catrobat.catroid.common.ScratchProgramData;
 import org.catrobat.catroid.common.ScratchSearchResult;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.transfers.SearchScratchProgramsTask;
+import org.catrobat.catroid.ui.BottomBar;
 import org.catrobat.catroid.ui.ScratchConverterActivity;
 import org.catrobat.catroid.ui.ScratchProgramDetailsActivity;
 import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
@@ -84,13 +86,67 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	public void onItemLongClick(ScratchProgramData item, ViewHolder holder) {	}
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({NONE, BACKPACK, COPY, DELETE, RENAME})
+	@IntDef({NONE, CONVERT})
 	@interface ActionModeType {}
-	protected static final int NONE = 0;
-	protected static final int BACKPACK = 1;
-	protected static final int COPY = 2;
-	protected static final int DELETE = 3;
-	protected static final int RENAME = 4;
+	private static final int NONE = 0;
+	private static final int CONVERT = 1;
+	private boolean hasDetails = false;
+
+
+	private void handleContextualAction() {
+		if (adapter.getSelectedItems().isEmpty()) {
+			actionMode.finish();
+			return;
+		}
+
+		switch (actionModeType) {
+			case CONVERT:
+				convertCheckedProjects();
+				break;
+			case NONE:
+				throw new IllegalStateException("ActionModeType not set Correctly");
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_scratch_projects_convert:
+				prepareActionMode(CONVERT);
+				break;
+			case R.id.show_details:
+				adapter.showDetails = !adapter.showDetails;
+				PreferenceManager.getDefaultSharedPreferences(
+						getActivity()).edit().putBoolean(sharedPreferenceDetailsKey, adapter.showDetails).commit();
+				adapter.notifyDataSetChanged();
+				break;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	protected void prepareActionMode(@ActionModeType int type) {
+			startActionMode(type);
+	}
+
+	private void startActionMode(@ActionModeType int type) {
+		if (adapter.getItems().isEmpty()) {
+			ToastUtil.showError(getActivity(), R.string.am_empty_list);
+			resetActionModeParameters();
+		} else {
+			actionModeType = type;
+			actionMode = getActivity().startActionMode(convertModeCallBack);
+			BottomBar.hideBottomBar(getActivity());
+		}
+	}
+
+	protected void finishActionMode() {
+		adapter.clearSelection();
+		if (actionModeType != NONE) {
+			actionMode.finish();
+		}
+	}
 
 
 	@ActionModeType
@@ -127,10 +183,9 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		if (scratchProgramDataList == null) {
 			scratchProgramDataList = new ArrayList<>();
 		}
-		scratchProgramAdapter = new ScratchProgramAdapter(
+		adapter = new ScratchProgramAdapter(
 				scratchProgramDataList);
-		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
-		adapter = scratchProgramAdapter;
+		searchResultsRecyclerView.setAdapter(adapter);
 		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
 				DividerItemDecoration.VERTICAL));
 		onAdapterReady();
@@ -167,7 +222,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	private List<ScratchProgramData> scratchProgramDataList;
 	private ScratchProgramData scratchProgramToEdit;
 	private ExpiringLruMemoryObjectCache<ScratchSearchResult> scratchSearchResultCache;
-	private ScratchProgramAdapter scratchProgramAdapter;
 	private ActionMode actionMode;
 	private SearchScratchProgramsTask currentSearchTask = null;
 
@@ -186,15 +240,34 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		searchResultsRecyclerView.setLayoutParams(params);
 	}
 
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		if (hasDetails) {
+			adapter.showDetails = PreferenceManager.getDefaultSharedPreferences(
+					getActivity()).getBoolean(sharedPreferenceDetailsKey, false);
+
+			menu.findItem(R.id.show_details).setTitle(adapter.showDetails
+					? R.string.hide_details
+					: R.string.show_details);
+		}
+	}
+
 	private ActionMode.Callback convertModeCallBack = new ActionMode.Callback() {
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			actionMode = mode;
 			return false;
 		}
 
 		@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+
+			MenuInflater inflater = mode.getMenuInflater();
+			inflater.inflate(R.menu.context_menu, menu);
 			actionModeTitle = getString(R.string.convert);
+			adapter.showCheckBoxes = true;
+			adapter.notifyDataSetChanged();
 
 			mode.setTitle(actionModeTitle);
 			searchView.setVisibility(View.GONE);
@@ -205,19 +278,30 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			return false;
+			switch (item.getItemId()) {
+				case R.id.confirm:
+					handleContextualAction();
+					break;
+				default:
+					return false;
+		}
+			return true;
 		}
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
-			if (scratchProgramAdapter.getSelectedItems().size() == 0) {
-				clearCheckedProjectsAndEnableButtons();
-			} else {
-				convertCheckedProjects();
-				clearCheckedProjectsAndEnableButtons();
-			}
+
+			resetActionModeParameters();
+			adapter.clearSelection();
 		}
 	};
+
+	private void resetActionModeParameters() {
+		actionModeType = NONE;
+		actionModeTitle = "";
+		adapter.showCheckBoxes = false;
+		adapter.allowMultiSelection = true;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -367,12 +451,12 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	}
 
 	public boolean getShowDetails() {
-		return scratchProgramAdapter.showDetails;
+		return adapter.showDetails;
 	}
 
 	public void setShowDetails(boolean showDetails) {
-		scratchProgramAdapter.showDetails = showDetails;
-		scratchProgramAdapter.notifyDataSetChanged();
+		adapter.showDetails = showDetails;
+		adapter.notifyDataSetChanged();
 	}
 
 
@@ -384,7 +468,7 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 
 	private void convertCheckedProjects() {
 		ArrayList<ScratchProgramData> projectsToConvert = new ArrayList<>();
-		for (ScratchProgramData scratchProgramToEdit : scratchProgramAdapter.getSelectedItems()) {
+		for (ScratchProgramData scratchProgramToEdit : adapter.getSelectedItems()) {
 			projectsToConvert.add(scratchProgramToEdit);
 			Log.d(TAG, "Converting project '" + scratchProgramToEdit.getTitle() + "'");
 		}
@@ -394,7 +478,7 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	}
 
 	private void clearCheckedProjectsAndEnableButtons() {
-		scratchProgramAdapter.clearSelection();
+		adapter.clearSelection();
 		actionMode = null;
 		searchView.setVisibility(View.VISIBLE);
 		audioButton.setVisibility(View.VISIBLE);
@@ -414,7 +498,7 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	@Override
 	public void onPostExecute(final ScratchSearchResult result) {
 		Log.d(TAG, "onPostExecute for SearchScratchProgramsTask called");
-		Preconditions.checkNotNull(scratchProgramAdapter, "Scratch project adapter cannot be null!");
+		Preconditions.checkNotNull(adapter, "Scratch project adapter cannot be null!");
 
 		if (result == null || result.getProgramDataList() == null) {
 			ToastUtil.showError(activity, R.string.search_failed);
@@ -425,13 +509,13 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 			scratchSearchResultCache.put(result.getQuery(), result);
 		}
 
-		scratchProgramAdapter.getItems().clear();
+		adapter.getItems().clear();
 		for (ScratchProgramData projectData : result.getProgramDataList()) {
-			scratchProgramAdapter.add(projectData);
+			adapter.add(projectData);
 			Log.d(TAG, projectData.getTitle());
 		}
 
-		scratchProgramAdapter.notifyDataSetChanged();
+		adapter.notifyDataSetChanged();
 		searchResultsRecyclerView.setVisibility(View.VISIBLE);
 	}
 }
