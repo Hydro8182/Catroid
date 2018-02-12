@@ -59,6 +59,7 @@ public class ScratchProgramAdapter extends ExtendedRVAdapter<ScratchProgramData>
 			holder.image.setImageBitmap(null);
 		}
 		holder.name.setSingleLine(true);
+		holder.details.setVisibility(View.INVISIBLE);
 		if (showDetails) {
 			holder.details.setVisibility(View.VISIBLE);
 			holder.leftTopDetails.setText(item.getOwner());

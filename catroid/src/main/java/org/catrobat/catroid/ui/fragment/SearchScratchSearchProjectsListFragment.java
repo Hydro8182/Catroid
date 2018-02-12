@@ -25,15 +25,12 @@ package org.catrobat.catroid.ui.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -47,7 +44,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -59,13 +55,11 @@ import org.catrobat.catroid.common.ScratchProgramData;
 import org.catrobat.catroid.common.ScratchSearchResult;
 import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.transfers.SearchScratchProgramsTask;
-import org.catrobat.catroid.ui.BottomBar;
 import org.catrobat.catroid.ui.ScratchConverterActivity;
 import org.catrobat.catroid.ui.ScratchProgramDetailsActivity;
 import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchProgramAdapter;
 import org.catrobat.catroid.ui.recyclerview.adapter.draganddrop.TouchHelperCallback;
-import org.catrobat.catroid.ui.recyclerview.fragment.RecyclerViewFragment;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ViewHolder;
 import org.catrobat.catroid.utils.ExpiringLruMemoryObjectCache;
 import org.catrobat.catroid.utils.ToastUtil;
@@ -106,6 +100,7 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 			case NONE:
 				throw new IllegalStateException("ActionModeType not set Correctly");
 		}
+		actionMode.finish();
 	}
 
 	@Override
@@ -137,7 +132,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		} else {
 			actionModeType = type;
 			actionMode = getActivity().startActionMode(convertModeCallBack);
-			BottomBar.hideBottomBar(getActivity());
 		}
 	}
 
@@ -342,7 +336,7 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		super.onCreateView(inflater,container,savedInstanceState);
-
+		setHasOptionsMenu(true);
 		activity = (ScratchConverterActivity) getActivity();
 		final View rootView = inflater.inflate(R.layout.fragment_scratch_search_projects_list, container, false);
 		searchView = (SearchView) rootView.findViewById(R.id.search_view_scratch);
@@ -517,5 +511,10 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 
 		adapter.notifyDataSetChanged();
 		searchResultsRecyclerView.setVisibility(View.VISIBLE);
+	}
+	@Override
+	public void onStop() {
+		super.onStop();
+		finishActionMode();
 	}
 }
