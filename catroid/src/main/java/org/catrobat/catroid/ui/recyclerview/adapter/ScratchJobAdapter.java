@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.catrobat.catroid.ui.adapter;
+package org.catrobat.catroid.ui.recyclerview.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -39,95 +39,94 @@ import com.google.android.gms.common.images.WebImage;
 import com.squareup.picasso.Picasso;
 
 import org.catrobat.catroid.R;
+import org.catrobat.catroid.common.ScratchProgramData;
 import org.catrobat.catroid.scratchconverter.protocol.Job;
-import org.catrobat.catroid.ui.recyclerview.adapter.ScratchRemixedProgramAdapter;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ScratchJobVH;
+import org.catrobat.catroid.ui.recyclerview.viewholder.ViewHolder;
 import org.catrobat.catroid.utils.Utils;
 
 import java.util.List;
 import java.util.Locale;
 
-public class ScratchJobAdapter extends ArrayAdapter<Job> {
+public class ScratchJobAdapter extends RVAdapter<Job> implements RVAdapter.OnItemClickListener<Job> {
 	private static final String TAG = ScratchRemixedProgramAdapter.class.getSimpleName();
 
-	private ScratchJobEditListener scratchJobEditListener;
+	private OnItemClickListener<Job> scratchJobEditListener;
 
-	private static class ViewHolder {
-		private RelativeLayout background;
-		private TextView title;
-		private ImageView image;
-		private TextView status;
-		public RelativeLayout progressLayout;
-		private ProgressBar progressBar;
-		private TextView progress;
-	}
 
 	private static LayoutInflater inflater;
 
-	public ScratchJobAdapter(Context context, int resource, int textViewResourceId, List<Job> objects) {
-		super(context, resource, textViewResourceId, objects);
+	public ScratchJobAdapter(Context context, List<Job> objects) {
+		super(objects);
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Log.d(TAG, "Number of remixes: " + objects.size());
 	}
 
-	public void setScratchJobEditListener(ScratchJobEditListener listener) {
+	public void setScratchJobEditListener(OnItemClickListener<Job> listener) {
 		scratchJobEditListener = listener;
 	}
 
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		View projectView = convertView;
-		final ViewHolder holder;
-		if (projectView == null) {
-			projectView = inflater.inflate(R.layout.fragment_scratch_job_list_item, parent, false);
-			holder = new ViewHolder();
-			holder.background = (RelativeLayout) projectView.findViewById(R.id.scratch_job_list_item_background);
-			holder.title = (TextView) projectView.findViewById(R.id.scratch_job_list_item_title);
-			holder.image = (ImageView) projectView.findViewById(R.id.scratch_job_list_item_image);
-			holder.status = (TextView) projectView.findViewById(R.id.scratch_job_list_item_status);
-			holder.progressLayout = (RelativeLayout) projectView.findViewById(R.id.scratch_job_list_item_progress_layout);
-			holder.progressBar = (ProgressBar) projectView.findViewById(R.id.scratch_job_list_item_progress_bar);
-			holder.progress = (TextView) projectView.findViewById(R.id.scratch_job_list_item_progress_text);
-			projectView.setTag(holder);
+	public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_scratch_job_list_item, parent, false);
+		return new ScratchJobVH(view);
+	}
+
+	@Override
+	public void onBindViewHolder(ViewHolder holder, int position) {
+		onBindViewHolder((ScratchJobVH) holder, position);
+	}
+
+	public void onBindViewHolder(final ScratchJobVH holder, int position) {
+		final Job item = items.get(position);
+
+		holder.title.setText(item.getTitle());
+		if (item.getImage().getUrl() != null) {
+			final int height = holder.image.getContext().getResources().getDimensionPixelSize(R.dimen
+					.scratch_project_thumbnail_height);
+			final String originalImageURL = item.getImage().getUrl().toString();
+			// load image but only thumnail!
+			// in order to download only thumbnail version of the original image
+			// we have to reduce the image size in the URL
+			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
+			Picasso.with(holder.image.getContext()).load(thumbnailImageURL).into(holder.image);
 		} else {
-			holder = (ViewHolder) projectView.getTag();
+			// clear old image of other program if this is a reused view element
+			holder.image.setImageBitmap(null);
 		}
 
-		// ------------------------------------------------------------
-		final Job job = getItem(position);
-
 		// set name of project:
-		holder.title.setText(job.getTitle());
 		holder.title.setSingleLine(true);
 
 		// set status of project:
 		holder.status.setTextColor(Color.WHITE);
+		holder.details.setVisibility(View.VISIBLE);
 
-		boolean showProgressBar = false;
 		short progress = 0;
-
-		switch (job.getState()) {
+		boolean showProgressBar = false;
+		switch (item.getState()) {
 			case UNSCHEDULED:
 				holder.status.setText("-");
 				break;
 			case SCHEDULED:
-				holder.status.setText(getContext().getString(R.string.status_scheduled));
+				holder.status.setText(holder.status.getContext().getString(R.string.status_scheduled));
 				showProgressBar = true;
 				break;
 			case READY:
-				holder.status.setText(getContext().getString(R.string.status_waiting_for_worker));
+				holder.status.setText(holder.status.getContext().getString(R.string.status_waiting_for_worker));
 				showProgressBar = true;
 				break;
 			case RUNNING:
-				holder.status.setText(getContext().getString(R.string.status_started));
+				holder.status.setText(holder.status.getContext().getString(R.string.status_started));
 				showProgressBar = true;
-				progress = job.getProgress();
+				progress = item.getProgress();
 				break;
 			case FINISHED:
 				int messageID;
-				switch (job.getDownloadState()) {
+				switch (item.getDownloadState()) {
 					case DOWNLOADING:
 						messageID = R.string.status_downloading;
-						progress = job.getDownloadProgress();
+						progress = item.getDownloadProgress();
 						showProgressBar = true;
 						break;
 					case DOWNLOADED:
@@ -136,13 +135,14 @@ public class ScratchJobAdapter extends ArrayAdapter<Job> {
 					default:
 						messageID = R.string.status_conversion_finished;
 				}
-				holder.status.setText(getContext().getString(messageID));
+				holder.status.setText(holder.status.getContext().getString(messageID));
 				break;
 			case FAILED:
 				holder.status.setText(R.string.status_conversion_failed);
 				holder.status.setTextColor(Color.RED);
 				break;
 		}
+
 
 		if (showProgressBar) {
 			// update progress state of project:
@@ -154,16 +154,16 @@ public class ScratchJobAdapter extends ArrayAdapter<Job> {
 		}
 
 		// set project image (threaded):
-		WebImage httpImageMetadata = job.getImage();
+		WebImage httpImageMetadata = item.getImage();
 		if (httpImageMetadata != null && httpImageMetadata.getUrl() != null) {
-			final int height = getContext().getResources().getDimensionPixelSize(R.dimen.scratch_project_thumbnail_height);
+			final int height = holder.status.getContext().getResources().getDimensionPixelSize(R.dimen.scratch_project_thumbnail_height);
 			final String originalImageURL = httpImageMetadata.getUrl().toString();
 
 			// load image but only thumnail!
 			// in order to download only thumbnail version of the original image
 			// we have to reduce the image size in the URL
 			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
-			Picasso.with(getContext()).load(thumbnailImageURL).into(holder.image);
+			Picasso.with(holder.status.getContext()).load(thumbnailImageURL).into(holder.image);
 		} else {
 			// clear old image of other project if this is a reused view element
 			holder.image.setImageBitmap(null);
@@ -173,14 +173,17 @@ public class ScratchJobAdapter extends ArrayAdapter<Job> {
 			@Override
 			public void onClick(View v) {
 				if (scratchJobEditListener != null) {
-					scratchJobEditListener.onProjectEdit(position);
+					scratchJobEditListener.onItemClick(item);
 				}
 			}
 		});
 
 		holder.background.setBackgroundResource(R.drawable.button_background_selector);
-		return projectView;
+
 	}
+
+	public void onItemClick(Job item) {}
+	public void onItemLongClick(Job item, ViewHolder h) {}
 
 	public interface ScratchJobEditListener {
 		void onProjectEdit(int position);
