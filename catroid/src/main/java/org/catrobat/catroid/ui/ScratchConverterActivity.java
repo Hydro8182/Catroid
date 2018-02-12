@@ -29,9 +29,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +46,6 @@ import org.catrobat.catroid.scratchconverter.WebSocketClient;
 import org.catrobat.catroid.scratchconverter.protocol.WebSocketMessageListener;
 import org.catrobat.catroid.ui.fragment.ScratchConverterSlidingUpPanelFragment;
 import org.catrobat.catroid.ui.fragment.SearchScratchSearchProjectsListFragment;
-import org.catrobat.catroid.ui.recyclerview.backpack.BackpackRecyclerViewFragment;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.utils.Utils;
 import org.catrobat.catroid.web.ScratchDataFetcher;
@@ -58,7 +54,6 @@ import org.catrobat.catroid.web.ServerCalls;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class ScratchConverterActivity extends BaseActivity implements SlidingUpPanelLayout.PanelSlideListener {
 
@@ -82,13 +77,6 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		client = converterClient;
 	}
 
-	public ScratchConverterSlidingUpPanelFragment getConverterSlidingUpPanelFragment() {
-		return converterSlidingUpPanelFragment;
-	}
-
-	public SearchScratchSearchProjectsListFragment getSearchProjectsListFragment() {
-		return searchProjectsListFragment;
-	}
 	private void setUpActionBar() {
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -228,28 +216,6 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 				menu.findItem(R.id.show_details));
 		return true;
 	}
-	/*
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		handleShowDetails(searchProjectsListFragment.getShowDetails(),
-				menu.findItem(R.id.menu_scratch_projects_show_details));
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_scratch_projects_convert:
-				Log.d(TAG, "Selected menu item 'convert'");
-				searchProjectsListFragment.startConvertActionMode();
-				break;
-			case R.id.menu_scratch_projects_show_details:
-				Log.d(TAG, "Selected menu item 'Show/Hide details'");
-				handleShowDetails(!searchProjectsListFragment.getShowDetails(), item);
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}*/
 
 	private void handleShowDetails(boolean showDetails, MenuItem item) {
 		searchProjectsListFragment.setShowDetails(showDetails);

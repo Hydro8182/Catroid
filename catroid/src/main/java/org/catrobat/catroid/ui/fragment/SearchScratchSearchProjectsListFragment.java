@@ -453,13 +453,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		adapter.notifyDataSetChanged();
 	}
 
-
-	public void startConvertActionMode() {
-		if (actionMode == null) {
-			actionMode = activity.startActionMode(convertModeCallBack);
-		}
-	}
-
 	private void convertCheckedProjects() {
 		ArrayList<ScratchProgramData> projectsToConvert = new ArrayList<>();
 		for (ScratchProgramData scratchProgramToEdit : adapter.getSelectedItems()) {
@@ -469,16 +462,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		initializeAdapter();
 		//initAdapter();
 		activity.convertProjects(projectsToConvert);
-	}
-
-	private void clearCheckedProjectsAndEnableButtons() {
-		adapter.clearSelection();
-		actionMode = null;
-		searchView.setVisibility(View.VISIBLE);
-		audioButton.setVisibility(View.VISIBLE);
-		int marginTop = activity.getResources().getDimensionPixelSize(R.dimen.scratch_project_search_list_view_margin_top);
-		int marginBottom = activity.getResources().getDimensionPixelSize(R.dimen.scratch_project_search_list_view_margin_bottom);
-		setSearchResultsListViewMargin(0, marginTop, 0, marginBottom);
 	}
 
 	//----------------------------------------------------------------------------------------------
