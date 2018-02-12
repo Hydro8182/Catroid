@@ -72,17 +72,18 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	// to avoid using singleton in fragment
 	private static Client client = null;
 	private static ScratchDataFetcher dataFetcher = ServerCalls.getInstance();
-
-	private SearchScratchSearchProjectsListFragment searchProjectsListFragment;
-
-	private ScratchConverterSlidingUpPanelFragment converterSlidingUpPanelFragment;
-
-	public ScratchConverterSlidingUpPanelFragment getConverterSlidingUpPanelFragment()
-	{
-		return	converterSlidingUpPanelFragment;
-	}
 	private SlidingUpPanelLayout slidingLayout;
 	private ConversionManager conversionManager;
+
+	private ScratchConverterSlidingUpPanelFragment getSlidingUpFragment() {
+		return (ScratchConverterSlidingUpPanelFragment) getFragmentManager().findFragmentById(R.id
+				.fragment_scratch_converter_sliding_up_panel);
+	}
+	private SearchScratchSearchProjectsListFragment getSearchFragment() {
+		return (SearchScratchSearchProjectsListFragment) getFragmentManager()
+				.findFragmentById(
+						R.id.fragment_scratch_search_projects_list);
+	}
 
 	// dependency-injection for testing with mock object
 	public static void setDataFetcher(final ScratchDataFetcher fetcher) {
@@ -106,12 +107,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scratch_converter);
 		setUpActionBar();
-		searchProjectsListFragment =  (SearchScratchSearchProjectsListFragment) getFragmentManager()
-				.findFragmentById(
-				R.id.fragment_scratch_search_projects_list);
-		searchProjectsListFragment.setDataFetcher(dataFetcher);
-		converterSlidingUpPanelFragment = (ScratchConverterSlidingUpPanelFragment) getFragmentManager().findFragmentById(
-				R.id.fragment_scratch_converter_sliding_up_panel);
+		getSearchFragment().setDataFetcher(dataFetcher);
 
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		final long clientID = settings.getLong(Constants.SCRATCH_CONVERTER_CLIENT_ID_SHARED_PREFERENCE_NAME,
@@ -123,14 +119,13 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 
 		conversionManager = new ScratchConversionManager(this, client, false);
 		conversionManager.setCurrentActivity(this);
-		conversionManager.addGlobalDownloadCallback(converterSlidingUpPanelFragment);
-		conversionManager.addBaseInfoViewListener(converterSlidingUpPanelFragment);
-		conversionManager.addGlobalJobViewListener(converterSlidingUpPanelFragment);
-		searchProjectsListFragment.setConversionManager(conversionManager);
+		conversionManager.addGlobalDownloadCallback(getSlidingUpFragment());
+		conversionManager.addBaseInfoViewListener(getSlidingUpFragment());
+		conversionManager.addGlobalJobViewListener(getSlidingUpFragment());
+		getSearchFragment().setConversionManager(conversionManager);
 
-		slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+		slidingLayout = findViewById(R.id.sliding_layout);
 		slidingLayout.addPanelSlideListener(this);
-
 		hideSlideUpPanelBar();
 
 		Log.i(TAG, "Scratch Converter Activity created");
@@ -138,8 +133,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	@Override protected void onPostCreate(Bundle savedBundle)
 	{
 		super.onPostCreate(savedBundle);
-		converterSlidingUpPanelFragment.getFinishedFailedJobsAdapter().setScratchJobEditListener(this);
-
+		getSlidingUpFragment().getFinishedFailedJobsAdapter().setScratchJobEditListener(this);
 	}
 	@Override
 	protected void onStart() {
@@ -155,9 +149,9 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		super.onDestroy();
 		Log.d(TAG, "Destroyed: " + TAG);
 		conversionManager.shutdown();
-		conversionManager.removeGlobalDownloadCallback(converterSlidingUpPanelFragment);
-		conversionManager.removeBaseInfoViewListener(converterSlidingUpPanelFragment);
-		conversionManager.removeGlobalJobViewListener(converterSlidingUpPanelFragment);
+		conversionManager.removeGlobalDownloadCallback(getSlidingUpFragment());
+		conversionManager.removeBaseInfoViewListener(getSlidingUpFragment());
+		conversionManager.removeGlobalJobViewListener(getSlidingUpFragment());
 		client = null;
 	}
 
@@ -200,7 +194,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	}
 
 	public boolean isSlideUpPanelEmpty() {
-		return !converterSlidingUpPanelFragment.hasVisibleJobs();
+		return !getSlidingUpFragment().hasVisibleJobs();
 	}
 
 	public void showSlideUpPanelBar(final long delayMillis) {
@@ -212,18 +206,18 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 			slidingLayout.postDelayed(new Runnable() {
 				public void run() {
 					slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-					searchProjectsListFragment.setSearchResultsListViewMargin(0, marginTop, 0, marginBottom);
+					getSearchFragment().setSearchResultsListViewMargin(0, marginTop, 0, marginBottom);
 				}
 			}, delayMillis);
 		} else {
 			slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-			searchProjectsListFragment.setSearchResultsListViewMargin(0, marginTop, 0, marginBottom);
+			getSearchFragment().setSearchResultsListViewMargin(0, marginTop, 0, marginBottom);
 		}
 	}
 
 	public void hideSlideUpPanelBar() {
 		int marginTop = getResources().getDimensionPixelSize(R.dimen.scratch_project_search_list_view_margin_top);
-		searchProjectsListFragment.setSearchResultsListViewMargin(0, marginTop, 0, 0);
+		getSearchFragment().setSearchResultsListViewMargin(0, marginTop, 0, 0);
 		slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 	}
 
@@ -234,13 +228,13 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 	}
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		handleShowDetails(searchProjectsListFragment.getShowDetails(),
+		handleShowDetails(getSearchFragment().getShowDetails(),
 				menu.findItem(R.id.show_details));
 		return true;
 	}
 
 	private void handleShowDetails(boolean showDetails, MenuItem item) {
-		searchProjectsListFragment.setShowDetails(showDetails);
+		getSearchFragment().setShowDetails(showDetails);
 		item.setTitle(showDetails ? R.string.hide_details : R.string.show_details);
 	}
 
@@ -256,7 +250,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 			List<String> results = data.getStringArrayListExtra(
 					RecognizerIntent.EXTRA_RESULTS);
 			String spokenText = results.get(0);
-			searchProjectsListFragment.searchAndUpdateText(spokenText);
+			getSearchFragment().searchAndUpdateText(spokenText);
 		} else if (requestCode == Constants.INTENT_REQUEST_CODE_CONVERT && resultCode == RESULT_OK) {
 			if (!data.hasExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA)) {
 				super.onActivityResult(requestCode, resultCode, data);
@@ -272,7 +266,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 
 	@Override
 	public void onPanelSlide(View panel, float slideOffset) {
-		converterSlidingUpPanelFragment.rotateImageButton(slideOffset * 180.0f);
+		getSlidingUpFragment().rotateImageButton(slideOffset * 180.0f);
 	}
 
 	@Override
@@ -281,25 +275,22 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		Log.d(TAG, "SlidingUpPanel state changed: " + newState.toString());
 		switch (newState) {
 			case EXPANDED:
-				converterSlidingUpPanelFragment.rotateImageButton(180);
-				converterSlidingUpPanelFragment.scrollUpPanelScrollView();
+				getSlidingUpFragment().rotateImageButton(180);
+				getSlidingUpFragment().scrollUpPanelScrollView();
 				break;
 			case COLLAPSED:
-				converterSlidingUpPanelFragment.rotateImageButton(0);
-				converterSlidingUpPanelFragment.scrollUpPanelScrollView();
+				getSlidingUpFragment().rotateImageButton(0);
+				getSlidingUpFragment().scrollUpPanelScrollView();
 				break;
 		}
 	}
 
-	public void onItemClick(Job item)
+	public void onItemClick(Job job)
 	{
 		if (!Looper.getMainLooper().equals(Looper.myLooper())) {
 			throw new AssertionError("You should not change the UI from any thread except UI thread!");
 		}
 
-		//Log.i(TAG, "User clicked on position: " + position);
-
-		final Job job = item;
 		if (job == null) {
 			Log.e(TAG, "Job not found in runningJobsAdapter!");
 			return;
@@ -310,7 +301,7 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 			return;
 		}
 
-		String catrobatProgramName = converterSlidingUpPanelFragment.getDownloadedProgramsMap().get(job.getJobID());
+		String catrobatProgramName = getSlidingUpFragment().getDownloadedProgramsMap().get(job.getJobID());
 		catrobatProgramName = catrobatProgramName == null ? job.getTitle() : catrobatProgramName;
 
 		if (job.getDownloadState() == Job.DownloadState.DOWNLOADING) {
@@ -344,12 +335,9 @@ public class ScratchConverterActivity extends BaseActivity implements SlidingUpP
 		}
 
 		LoadProjectTask loadProjectTask = new LoadProjectTask(this, catrobatProgramName, true, false);
-		loadProjectTask.setOnLoadProjectCompleteListener(converterSlidingUpPanelFragment);
+		loadProjectTask.setOnLoadProjectCompleteListener(getSlidingUpFragment());
 		loadProjectTask.execute();
 	}
 
 	public void onItemLongClick(Job item, ViewHolder h){}
-
-
-
 }
