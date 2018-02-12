@@ -104,17 +104,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 				selectedItemCnt));
 	}
 
-	protected void deleteItems(List<ScratchProgramData> selectedItems) {
-		//We can't delete external programs.
-	}
-
-
-	protected int getDeleteAlertTitle()
-	{
-		//TODO: ??? What is this?
-		return R.plurals.delete_looks;
-	}
-
 	protected String sharedPreferenceDetailsKey = "";
 	private ItemTouchHelper touchHelper;
 	private void onAdapterReady() {
@@ -145,10 +134,6 @@ public class SearchScratchSearchProjectsListFragment extends Fragment
 		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
 				DividerItemDecoration.VERTICAL));
 		onAdapterReady();
-	}
-
-	public void handleAddButton() {
-		//TODO: There should be no add button...
 	}
 
 	public void onItemClick(ScratchProgramData item) {
