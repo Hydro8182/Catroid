@@ -90,7 +90,6 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	}
 
 	public void onItemLongClick(ScratchProgramData item, ViewHolder h) {
-
 	}
 
 	private static final String TAG = ScratchProgramDetailsActivity.class.getSimpleName();
@@ -99,28 +98,9 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	private static ConversionManager conversionManager = null;
 
 	private ScratchProgramData programData;
-	private TextView titleTextView;
-	private TextView ownerTextView;
-	private ImageView imageView;
-	private TextView visibilityWarningTextView;
-	private FlowTextView instructionsFlowTextView;
-	private TextView notesAndCreditsLabelView;
-	private TextView notesAndCreditsTextView;
-	private TextView favoritesTextView;
-	private TextView lovesTextView;
-	private TextView viewsTextView;
-	private TextView tagsTextView;
-	private TextView sharedTextView;
-	private TextView modifiedTextView;
-	private Button convertButton;
-	private RecyclerView remixedProjectsListView;
 	private ProgressDialog progressDialog;
 	private ScratchRemixedProgramAdapter scratchRemixedProgramAdapter;
-	private ScrollView mainScrollView;
-	private RelativeLayout detailsLayout;
-	private TextView remixesLabelView;
 	private FetchScratchProgramDetailsTask fetchRemixesTask = new FetchScratchProgramDetailsTask();
-	private View separationLineBottom;
 
 	public static void setDataFetcher(final ScratchDataFetcher fetcher) {
 		dataFetcher = fetcher;
@@ -138,26 +118,6 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		programData = getIntent().getParcelableExtra(Constants.INTENT_SCRATCH_PROGRAM_DATA);
 		Preconditions.checkState(programData != null);
 
-		titleTextView = (TextView) findViewById(R.id.scratch_project_title);
-		ownerTextView = (TextView) findViewById(R.id.scratch_project_owner);
-		mainScrollView = (ScrollView) findViewById(R.id.scratch_project_scroll_view);
-		imageView = (ImageView) findViewById(R.id.scratch_project_image_view);
-		visibilityWarningTextView = (TextView) findViewById(R.id.scratch_project_visibility_warning);
-		instructionsFlowTextView = (FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text);
-		notesAndCreditsLabelView = (TextView) findViewById(R.id.scratch_project_notes_and_credits_label);
-		notesAndCreditsTextView = (TextView) findViewById(R.id.scratch_project_notes_and_credits_text);
-		favoritesTextView = (TextView) findViewById(R.id.scratch_project_favorites_text);
-		lovesTextView = (TextView) findViewById(R.id.scratch_project_loves_text);
-		viewsTextView = (TextView) findViewById(R.id.scratch_project_views_text);
-		tagsTextView = (TextView) findViewById(R.id.scratch_project_tags_text);
-		sharedTextView = (TextView) findViewById(R.id.scratch_project_shared_text);
-		modifiedTextView = (TextView) findViewById(R.id.scratch_project_modified_text);
-		remixedProjectsListView = (RecyclerView) findViewById(R.id.scratch_project_remixes_list_view);
-		convertButton = (Button) findViewById(R.id.scratch_project_convert_button);
-		detailsLayout = (RelativeLayout) findViewById(R.id.scratch_project_details_layout);
-		remixesLabelView = (TextView) findViewById(R.id.scratch_project_remixes_label);
-		separationLineBottom = findViewById(R.id.separation_line_bottom);
-
 		if (conversionManager.isJobInProgress(programData.getId())) {
 			onJobInProgress();
 		} else if (conversionManager.isJobDownloading(programData.getId())) {
@@ -170,7 +130,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		conversionManager.addGlobalDownloadCallback(this);
 
 		final Activity activity = this;
-		convertButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.scratch_project_convert_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				final int numberOfJobsInProgress = conversionManager.getNumberOfJobsInProgress();
@@ -181,7 +141,6 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 							Constants.SCRATCH_CONVERTER_MAX_NUMBER_OF_JOBS_PER_CLIENT));
 					return;
 				}
-
 				onJobInProgress();
 
 				Intent intent = new Intent();
@@ -190,10 +149,7 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 				finish();
 			}
 		});
-
 		loadAdditionalData(programData);
-
-
 	}
 
 	@Override
@@ -231,22 +187,21 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 	private void loadAdditionalData(ScratchProgramData scratchProgramData) {
 		Preconditions.checkArgument(scratchProgramData != null);
 		Log.i(TAG, scratchProgramData.getTitle());
-		instructionsFlowTextView.setText("-");
-		notesAndCreditsLabelView.setVisibility(GONE);
-		notesAndCreditsTextView.setVisibility(GONE);
-		remixesLabelView.setVisibility(GONE);
-		remixedProjectsListView.setVisibility(GONE);
-		detailsLayout.setVisibility(GONE);
-		tagsTextView.setVisibility(GONE);
-		visibilityWarningTextView.setVisibility(GONE);
-		convertButton.setVisibility(GONE);
-		separationLineBottom.setVisibility(GONE);
+		((FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text)).setText("-");
+		findViewById(R.id.scratch_project_notes_and_credits_label).setVisibility(GONE);
+		findViewById(R.id.scratch_project_notes_and_credits_text).setVisibility(GONE);
+		findViewById(R.id.scratch_project_remixes_label).setVisibility(GONE);
+		findViewById(R.id.scratch_project_remixes_list_view).setVisibility(GONE);
+		findViewById(R.id.scratch_project_details_layout).setVisibility(GONE);
+		findViewById(R.id.scratch_project_tags_text).setVisibility(GONE);
+		findViewById(R.id.scratch_project_visibility_warning).setVisibility(GONE);
+		findViewById(R.id.scratch_project_convert_button).setVisibility(GONE);
+		findViewById(R.id.separation_line_bottom).setVisibility(GONE);
 
 		if (scratchRemixedProgramAdapter != null) {
 			scratchRemixedProgramAdapter.getItems().clear();
 		}
-
-		titleTextView.setText(scratchProgramData.getTitle());
+		((TextView)findViewById(R.id.scratch_project_title)).setText(scratchProgramData.getTitle());
 		if (scratchProgramData.getImage() != null && scratchProgramData.getImage().getUrl() != null) {
 			final int height = getResources().getDimensionPixelSize(R.dimen.scratch_project_image_height);
 			final String originalImageURL = scratchProgramData.getImage().getUrl().toString();
@@ -255,7 +210,8 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 			// in order to download only thumbnail version of the original image
 			// we have to reduce the image size in the URL
 			final String thumbnailImageURL = Utils.changeSizeOfScratchImageURL(originalImageURL, height);
-			Picasso.with(this).load(thumbnailImageURL).into(imageView);
+			ImageView image = findViewById(R.id.scratch_project_image_view);
+			Picasso.with(this).load(thumbnailImageURL).into(image);
 		}
 
 		fetchRemixesTask.setContext(this).setDelegate(this).setFetcher(dataFetcher);
@@ -267,35 +223,29 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 			scratchRemixedProjectsData = new ArrayList<>();
 		}
 		scratchRemixedProgramAdapter = new ScratchRemixedProgramAdapter(scratchRemixedProjectsData);
-		remixedProjectsListView.setAdapter(scratchRemixedProgramAdapter);
-		remixedProjectsListView.addItemDecoration(new DividerItemDecoration(remixedProjectsListView.getContext(),
+		((RecyclerView) findViewById(R.id.scratch_project_remixes_list_view)).setAdapter(scratchRemixedProgramAdapter);
+		((RecyclerView) findViewById(R.id.scratch_project_remixes_list_view)).addItemDecoration(new
+				DividerItemDecoration(findViewById(R.id.scratch_project_remixes_list_view).getContext(),
 				DividerItemDecoration.VERTICAL));
 
 		scratchRemixedProgramAdapter.setOnItemClickListener(this);
-
-
-
 	}
 
 
 	private void onJobNotInProgress() {
-		convertButton.setText(R.string.convert);
-		convertButton.setEnabled(true);
+		((Button) findViewById(R.id.scratch_project_convert_button)).setText(R.string.convert);
+		findViewById(R.id.scratch_project_convert_button).setEnabled(true);
 	}
 
 	private void onJobInProgress() {
-		convertButton.setEnabled(false);
-		convertButton.setText(R.string.converting);
+		findViewById(R.id.scratch_project_convert_button).setEnabled(false);
+		((Button) findViewById(R.id.scratch_project_convert_button)).setText(R.string.converting);
 	}
 
 	private void onJobDownloading() {
-		convertButton.setEnabled(false);
-		convertButton.setText(R.string.status_downloading);
+		findViewById(R.id.scratch_project_convert_button).setEnabled(false);
+		((Button) findViewById(R.id.scratch_project_convert_button)).setText(R.string.status_downloading);
 	}
-
-
-
-
 
 	//----------------------------------------------------------------------------------------------
 	// Scratch Project Details Task Delegate Methods
@@ -324,42 +274,42 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 		updateViews();
 
 		// workaround to avoid scrolling down to list view after all list items have been initialized
-		mainScrollView.postDelayed(new Runnable() {
+		findViewById(R.id.scratch_project_scroll_view).postDelayed(new Runnable() {
 			public void run() {
-				mainScrollView.fullScroll(ScrollView.FOCUS_UP);
+				((ScrollView) findViewById(R.id.scratch_project_scroll_view)).fullScroll(ScrollView.FOCUS_UP);
 			}
 		}, 300);
 	}
 
 	private void updateViews() {
-		titleTextView.setText(programData.getTitle());
-		ownerTextView.setText(getString(R.string.by_x, programData.getOwner()));
+		((TextView)findViewById(R.id.scratch_project_title)).setText(programData.getTitle());
+		((TextView) findViewById(R.id.scratch_project_owner)).setText(getString(R.string.by_x, programData.getOwner()));
 
 		if (programData.getNotesAndCredits() != null && programData.getNotesAndCredits().length() > 0) {
 			final String notesAndCredits = programData.getNotesAndCredits().replace("\n\n", "\n");
-			notesAndCreditsTextView.setText(notesAndCredits);
-			notesAndCreditsLabelView.setVisibility(VISIBLE);
-			notesAndCreditsTextView.setVisibility(VISIBLE);
+			((TextView) findViewById(R.id.scratch_project_notes_and_credits_text)).setText(notesAndCredits);
+			findViewById(R.id.scratch_project_notes_and_credits_label).setVisibility(VISIBLE);
+			findViewById(R.id.scratch_project_notes_and_credits_text).setVisibility(VISIBLE);
 		} else {
-			notesAndCreditsLabelView.setVisibility(GONE);
-			notesAndCreditsTextView.setVisibility(GONE);
+			findViewById(R.id.scratch_project_notes_and_credits_label).setVisibility(GONE);
+			findViewById(R.id.scratch_project_notes_and_credits_text).setVisibility(GONE);
 		}
 
 		if (programData.getInstructions() != null) {
 			String instructionsText = programData.getInstructions().replace("\n\n", "\n");
 			instructionsText = (instructionsText.length() > 0) ? instructionsText : "--";
-			instructionsFlowTextView.setText(instructionsText);
+			( (FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text)).setText(instructionsText);
 
 			float textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics());
-			instructionsFlowTextView.setTextSize(textSize);
-			instructionsFlowTextView.setColor(Color.LTGRAY);
+			((FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text)).setTextSize(textSize);
+			((FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text)).setColor(Color.LTGRAY);
 		} else {
-			instructionsFlowTextView.setText("-");
+			((FlowTextView) findViewById(R.id.scratch_project_instructions_flow_text)).setText("-");
 		}
 
-		favoritesTextView.setText(Utils.humanFriendlyFormattedShortNumber(programData.getFavorites()));
-		lovesTextView.setText(Utils.humanFriendlyFormattedShortNumber(programData.getLoves()));
-		viewsTextView.setText(Utils.humanFriendlyFormattedShortNumber(programData.getViews()));
+		((TextView) findViewById(R.id.scratch_project_favorites_text)).setText(Utils.humanFriendlyFormattedShortNumber(programData.getFavorites()));
+		((TextView) findViewById(R.id.scratch_project_loves_text)).setText(Utils.humanFriendlyFormattedShortNumber(programData.getLoves()));
+		((TextView) findViewById(R.id.scratch_project_views_text)).setText(Utils.humanFriendlyFormattedShortNumber(programData.getViews()));
 
 		if (programData.getTags() != null) {
 			StringBuilder tagList = new StringBuilder();
@@ -368,42 +318,42 @@ public class ScratchProgramDetailsActivity extends BaseActivity implements
 				tagList.append(index++ > 0 ? ", " : "").append(tag);
 			}
 			if (tagList.length() > 0) {
-				tagsTextView.setText(tagList);
-				tagsTextView.setVisibility(VISIBLE);
+				((TextView) findViewById(R.id.scratch_project_tags_text)).setText(tagList);
+				findViewById(R.id.scratch_project_tags_text).setVisibility(VISIBLE);
 			}
 		}
 
 		if (programData.getSharedDate() != null) {
 			final String sharedDateString = Utils.formatDate(programData.getSharedDate(), Locale.getDefault());
-			sharedTextView.setText(getString(R.string.shared_at_x, sharedDateString));
+			((TextView) findViewById(R.id.scratch_project_shared_text)).setText(getString(R.string.shared_at_x, sharedDateString));
 		} else {
-			sharedTextView.setVisibility(GONE);
+			findViewById(R.id.scratch_project_shared_text).setVisibility(GONE);
 		}
 
 		if (programData.getModifiedDate() != null) {
 			final String modifiedDateString = Utils.formatDate(programData.getModifiedDate(), Locale.getDefault());
-			modifiedTextView.setText(getString(R.string.modified_at_x, modifiedDateString));
+			((TextView) findViewById(R.id.scratch_project_modified_text)).setText(getString(R.string.modified_at_x, modifiedDateString));
 		} else {
-			modifiedTextView.setVisibility(GONE);
+			findViewById(R.id.scratch_project_modified_text).setVisibility(GONE);
 		}
 
-		detailsLayout.setVisibility(VISIBLE);
+		findViewById(R.id.scratch_project_details_layout).setVisibility(VISIBLE);
 		ScratchVisibilityState visibilityState = programData.getVisibilityState();
 
 		if (visibilityState != null && visibilityState != ScratchVisibilityState.PUBLIC) {
-			visibilityWarningTextView.setVisibility(VISIBLE);
-			convertButton.setVisibility(GONE);
+			findViewById(R.id.scratch_project_visibility_warning).setVisibility(VISIBLE);
+			findViewById(R.id.scratch_project_convert_button).setVisibility(GONE);
 		} else {
-			visibilityWarningTextView.setVisibility(GONE);
-			convertButton.setVisibility(VISIBLE);
+			findViewById(R.id.scratch_project_visibility_warning).setVisibility(GONE);
+			findViewById(R.id.scratch_project_convert_button).setVisibility(VISIBLE);
 		}
 
 		if (programData.getRemixes() != null && programData.getRemixes().size() > 0) {
-			remixesLabelView.setVisibility(VISIBLE);
-			remixedProjectsListView.setVisibility(VISIBLE);
+			findViewById(R.id.scratch_project_remixes_label).setVisibility(VISIBLE);
+			findViewById(R.id.scratch_project_remixes_list_view).setVisibility(VISIBLE);
 			initRemixAdapter(programData.getRemixes());
 		}
-		separationLineBottom.setVisibility(VISIBLE);
+		findViewById(R.id.separation_line_bottom).setVisibility(VISIBLE);
 	}
 
 	//----------------------------------------------------------------------------------------------
