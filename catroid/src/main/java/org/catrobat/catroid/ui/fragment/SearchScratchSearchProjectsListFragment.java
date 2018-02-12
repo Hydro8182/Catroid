@@ -31,9 +31,12 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
+import android.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ActionMode;
@@ -57,88 +60,97 @@ import org.catrobat.catroid.scratchconverter.ConversionManager;
 import org.catrobat.catroid.transfers.SearchScratchProgramsTask;
 import org.catrobat.catroid.ui.ScratchConverterActivity;
 import org.catrobat.catroid.ui.ScratchProgramDetailsActivity;
+import org.catrobat.catroid.ui.recyclerview.adapter.RVAdapter;
 import org.catrobat.catroid.ui.recyclerview.adapter.ScratchProgramAdapter;
+import org.catrobat.catroid.ui.recyclerview.adapter.draganddrop.TouchHelperCallback;
 import org.catrobat.catroid.ui.recyclerview.fragment.RecyclerViewFragment;
 import org.catrobat.catroid.ui.recyclerview.viewholder.ViewHolder;
 import org.catrobat.catroid.utils.ExpiringLruMemoryObjectCache;
 import org.catrobat.catroid.utils.ToastUtil;
 import org.catrobat.catroid.web.ScratchDataFetcher;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragment<ScratchProgramData>
-		implements SearchScratchProgramsTask.SearchScratchProgramsTaskDelegate
-		{
+public class SearchScratchSearchProjectsListFragment extends Fragment
+		implements RVAdapter.SelectionListener,
+		SearchScratchProgramsTask.SearchScratchProgramsTaskDelegate,
+		RVAdapter.OnItemClickListener<ScratchProgramData>{
+	private ScratchProgramAdapter adapter;
 
 	@Override
-	public void renameItem(String name) {
-		//TODO:??? I don't think it should be renameable...
-	}
-	@Override
-	protected void showRenameDialog(List<ScratchProgramData> selectedItems) {
-	}
-	protected boolean isBackpackEmpty() {
-		//We have no backpack, guess that means always empty?
-		return true;
-	}
-	@Override
-	public void addItem(ScratchProgramData item) {
-		adapter.add(item);
-	}
+	public void onItemLongClick(ScratchProgramData item, ViewHolder holder) {	}
 
-	@Override
-	public void onItemLongClick(ScratchProgramData item, ViewHolder holder) {
-		//We shouldn't be able to drag it.
-	}
+	@Retention(RetentionPolicy.SOURCE)
+	@IntDef({NONE, BACKPACK, COPY, DELETE, RENAME})
+	@interface ActionModeType {}
+	protected static final int NONE = 0;
+	protected static final int BACKPACK = 1;
+	protected static final int COPY = 2;
+	protected static final int DELETE = 3;
+	protected static final int RENAME = 4;
 
-	@Override
-	public boolean isNameUnique(String name) {
-		//I don't think we need it since 2 external programs could have the same name.
-		return true;
-	}
-	@Override
-	protected void copyItems(List<ScratchProgramData> selectedItems) {
-		//We can't copy external programs.
-	}
 
-	@Override
+	@ActionModeType
+	protected int actionModeType = NONE;
+
+
+
 	public void onSelectionChanged(int selectedItemCnt) {
 		actionMode.setTitle(actionModeTitle + " " + getResources().getQuantityString(R.plurals.am_looks_title,
 				selectedItemCnt,
 				selectedItemCnt));
 	}
-	@Override
+
 	protected void deleteItems(List<ScratchProgramData> selectedItems) {
 		//We can't delete external programs.
 	}
 
-	@Override
-	protected void packItems(List<ScratchProgramData> selectedItems) {
-		//We can't throw something in the backpack if we can't copy external programs
-	}
 
-	@Override
-	protected void switchToBackpack() { }
-
-	@Override
 	protected int getDeleteAlertTitle()
 	{
 		//TODO: ??? What is this?
 		return R.plurals.delete_looks;
 	}
 
+	protected String sharedPreferenceDetailsKey = "";
+	private ItemTouchHelper touchHelper;
+	private void onAdapterReady() {
+		adapter.showDetails = PreferenceManager.getDefaultSharedPreferences(
+				getActivity()).getBoolean(sharedPreferenceDetailsKey, false);
+		adapter.notifyDataSetChanged();
+		searchResultsRecyclerView.setAdapter(adapter);
 
-	@Override
+		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
+				DividerItemDecoration.VERTICAL));
+
+		adapter.setSelectionListener(this);
+		adapter.setOnItemClickListener(this);
+
+		ItemTouchHelper.Callback callback = new TouchHelperCallback(adapter);
+		touchHelper = new ItemTouchHelper(callback);
+		touchHelper.attachToRecyclerView(searchResultsRecyclerView);
+	}
+
 	protected void initializeAdapter() {
-		initAdapter();
+		if (scratchProgramDataList == null) {
+			scratchProgramDataList = new ArrayList<>();
+		}
+		scratchProgramAdapter = new ScratchProgramAdapter(
+				scratchProgramDataList);
+		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
+		adapter = scratchProgramAdapter;
+		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
+				DividerItemDecoration.VERTICAL));
 		onAdapterReady();
 	}
-	@Override
+
 	public void handleAddButton() {
 		//TODO: There should be no add button...
 	}
-	@Override
+
 	public void onItemClick(ScratchProgramData item) {
 		if (actionModeType != NONE) {
 			return;
@@ -268,7 +280,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		searchResultsRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_search_scratch);
 		searchResultsRecyclerView.setVisibility(View.INVISIBLE);
 		audioButton = (ImageButton) rootView.findViewById(R.id.mic_button_image_scratch);
-
 		int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
 		final TextView searchTextView = (TextView) searchView.findViewById(id);
 		searchTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -346,6 +357,7 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 		//initAdapter();
 		searchView.setFocusable(false);
 		fetchDefaultProjects();
+		initializeAdapter();
 	}
 
 	private void fetchDefaultProjects() {
@@ -379,18 +391,6 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 	}
 
 
-	private void initAdapter() {
-		if (scratchProgramDataList == null) {
-			scratchProgramDataList = new ArrayList<>();
-		}
-		scratchProgramAdapter = new ScratchProgramAdapter(
-				scratchProgramDataList);
-		searchResultsRecyclerView.setAdapter(scratchProgramAdapter);
-		adapter = scratchProgramAdapter;
-		searchResultsRecyclerView.addItemDecoration(new DividerItemDecoration(searchResultsRecyclerView.getContext(),
-				DividerItemDecoration.VERTICAL));
-	}
-
 	public void startConvertActionMode() {
 		if (actionMode == null) {
 			actionMode = activity.startActionMode(convertModeCallBack);
@@ -403,7 +403,8 @@ public class SearchScratchSearchProjectsListFragment extends RecyclerViewFragmen
 			projectsToConvert.add(scratchProgramToEdit);
 			Log.d(TAG, "Converting project '" + scratchProgramToEdit.getTitle() + "'");
 		}
-		initAdapter();
+		initializeAdapter();
+		//initAdapter();
 		activity.convertProjects(projectsToConvert);
 	}
 
