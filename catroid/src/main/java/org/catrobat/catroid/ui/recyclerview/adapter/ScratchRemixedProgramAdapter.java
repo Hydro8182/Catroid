@@ -36,7 +36,8 @@ import java.util.List;
 public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgramData> {
 	private static final String TAG = ScratchRemixedProgramAdapter.class.getSimpleName();
 
-	private ScratchRemixedProgramEditListener onClickListener;
+	private OnItemClickListener onItemClickListener;
+
 	@Override
 	public void onBindViewHolder(final ExtendedVH holder, int position) {
 
@@ -61,9 +62,10 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 		holder.background.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onClickListener.onRemixClick(item);
+				onItemClickListener.onItemClick(item);
 			}
 		});
+
 	}
 
 
@@ -72,11 +74,9 @@ public class ScratchRemixedProgramAdapter extends ExtendedRVAdapter<ScratchProgr
 		Log.d(TAG, "Number of remixes: " + objects.size());
 	}
 
-	public interface ScratchRemixedProgramEditListener {
-		void onRemixClick(ScratchProgramData item);
-	}
 
-	public void setOnClickListener(ScratchRemixedProgramEditListener listener){
-		this.onClickListener = listener;
+	@Override
+	public void setOnItemClickListener(OnItemClickListener listener){
+		this.onItemClickListener = listener;
 	}
 }
